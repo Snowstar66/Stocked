@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lagerstatus</title>
+    <meta name="theme-color" content="#f3f6f8" />
+    <link rel="stylesheet" href="./styles.css?v=places-admin-20260520" />
+    <script src="./app.js?v=places-admin-20260520" defer></script>
+  </head>
+  <body>
+    <main class="app-shell" data-ux-source="CostTracker3-UX-Extract">
+      <header class="topbar" aria-label="Lagerstatus översikt">
+        <div>
+          <span class="eyebrow">Lokal kontrollbild</span>
+          <h1>Lagerstatus</h1>
+        </div>
+
+        <div class="topbar__actions">
+          <label class="place-switcher" for="place-select">
+            <span>Plats</span>
+            <select id="place-select"></select>
+          </label>
+          <span class="local-badge" aria-label="Data sparas lokalt">Lokalt sparad</span>
+          <nav class="segmented-nav" aria-label="Huvudvy">
+            <button class="is-active" type="button" data-view="overview">Översikt</button>
+            <button type="button" data-view="inventory">Lager</button>
+            <button type="button" data-view="shopping">Inköp</button>
+            <button type="button" data-view="admin">Admin</button>
+          </nav>
+        </div>
+      </header>
+
+      <section id="summary" class="control-grid" aria-label="Snabbstatus"></section>
+
+      <section class="view-panel is-active" data-view-panel="overview">
+        <section class="workspace-grid">
+          <section class="workspace-main">
+            <section class="panel" aria-labelledby="quick-entry-title">
+              <div class="panel__header">
+                <div>
+                  <span class="eyebrow">Snabbregistrering</span>
+                  <h2 id="quick-entry-title">Bygg dagens lagerbild</h2>
+                  <p>Registrera varor manuellt för den valda platsen.</p>
+                </div>
+              </div>
+
+              <div class="entry-layout">
+                <form id="inventory-form" class="form-grid" aria-label="Lägg till matvara">
+                  <div class="field">
+                    <label for="item-name">Namn</label>
+                    <input id="item-name" required maxlength="60" autocomplete="off" />
+                  </div>
+                  <div class="field">
+                    <label for="item-category">Kategori</label>
+                    <select id="item-category"></select>
+                  </div>
+                  <div class="field">
+                    <label for="item-quantity">Antal</label>
+                    <input id="item-quantity" type="number" min="1" max="99" value="1" />
+                  </div>
+                  <div class="field">
+                    <label for="item-date">Bäst före / använd före</label>
+                    <input id="item-date" type="date" />
+                  </div>
+                  <div class="form-actions form-actions--left">
+                    <button class="icon-button icon-button--primary" type="submit">Spara vara</button>
+                  </div>
+                </form>
+
+                <section class="data-card data-card--quiet" aria-label="Planeringsregel">
+                  <h3>Planeringsdatum, inte säkerhetsråd</h3>
+                  <p>Listor och måltidsidéer hjälper dig prioritera vad som kan användas först. Bedöm alltid maten själv.</p>
+                </section>
+              </div>
+            </section>
+          </section>
+
+          <aside class="workspace-rail" aria-label="Sidopanel">
+            <p id="feedback" class="feedback local-badge" data-tone="success" aria-live="polite">
+              All data sparas lokalt i den här webbläsaren.
+            </p>
+
+            <section class="panel">
+              <div class="panel__header">
+                <div>
+                  <span class="eyebrow">Prioritet</span>
+                  <h2>Snart-dags</h2>
+                </div>
+              </div>
+              <div id="soon" class="month-cards month-cards--visible"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel__header">
+                <div>
+                  <span class="eyebrow">Förslag</span>
+                  <h2>Måltidsidéer</h2>
+                </div>
+              </div>
+              <div id="suggestions" class="data-grid data-grid--single"></div>
+            </section>
+          </aside>
+        </section>
+      </section>
+
+      <section class="view-panel" data-view-panel="inventory">
+        <section class="panel" aria-labelledby="inventory-title">
+          <div class="panel__header">
+            <div>
+              <span class="eyebrow">Lager</span>
+              <h2 id="inventory-title">Kategoriserad översikt</h2>
+              <p>Skanna varor, datum och status för den valda platsen.</p>
+            </div>
+            <span class="chip">Kyl · Frys · Skafferi</span>
+          </div>
+          <div id="inventory" class="inventory timeline-wrap"></div>
+        </section>
+      </section>
+
+      <section class="view-panel" data-view-panel="shopping">
+        <section class="panel">
+          <div class="panel__header">
+            <div>
+              <span class="eyebrow">Inköp</span>
+              <h2 id="shopping-title">Undvik dubbla köp</h2>
+              <p>Inköpslistan gäller den valda platsen och visar om liknande vara redan finns där.</p>
+            </div>
+          </div>
+          <form id="shopping-form" class="inline-create" aria-label="Lägg till inköpsvara">
+            <input id="shopping-name" required maxlength="60" placeholder="Lägg till saknad vara" />
+            <button class="icon-button icon-button--primary" type="submit">Lägg till</button>
+          </form>
+          <div id="shopping" class="register-list"></div>
+        </section>
+      </section>
+
+      <section class="view-panel" data-view-panel="admin">
+        <section class="workspace-grid">
+          <section class="workspace-main">
+            <section class="panel">
+              <div class="panel__header">
+                <div>
+                  <span class="eyebrow">Admin</span>
+                  <h2>Platser</h2>
+                  <p>Minst en plats finns alltid. Byt plats i toppfältet.</p>
+                </div>
+              </div>
+              <form id="place-form" class="inline-create" aria-label="Lägg till plats">
+                <input id="place-name" required maxlength="48" placeholder="Ny plats, t.ex. Sommarstuga" />
+                <button class="icon-button icon-button--primary" type="submit">Lägg till plats</button>
+              </form>
+              <div id="place-list" class="register-list"></div>
+            </section>
+          </section>
+
+          <aside class="workspace-rail">
+            <section class="panel">
+              <div class="panel__header">
+                <div>
+                  <span class="eyebrow">Audit</span>
+                  <h2>Händelser</h2>
+                </div>
+                <button id="clear-audit" class="icon-button" type="button">Rensa audit</button>
+              </div>
+              <ol id="audit" class="detail-list detail-list--compact"></ol>
+            </section>
+
+            <section class="panel">
+              <div class="panel__header">
+                <div>
+                  <span class="eyebrow">Rensning</span>
+                  <h2>Lokal data</h2>
+                  <p>Rensar varor, inköp och platser i den här webbläsaren. En ny standardplats skapas direkt efteråt.</p>
+                </div>
+              </div>
+              <div class="data-grid data-grid--single">
+                <button id="clear-data" class="icon-button icon-button--danger" type="button">Rensa all lokal data</button>
+              </div>
+            </section>
+          </aside>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

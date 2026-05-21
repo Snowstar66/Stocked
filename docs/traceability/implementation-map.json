@@ -1,0 +1,74 @@
+{
+  "outcome": {
+    "id": "OUT-001",
+    "title": "Minska hushållets matsvinn genom bättre översikt och enklare vardagsbeslut"
+  },
+  "stories": [
+    {
+      "id": "DS-001",
+      "epic": "EPIC-001",
+      "source_story_ideas": ["SC-001", "SC-002"],
+      "journey": "SJ-001",
+      "acceptance": ["Registrera vara", "Visa lager i kategorier"],
+      "implementation": ["app/index.html", "app/app.js", "app/domain.mjs", "app/styles.css"],
+      "tests": ["tests/domain.test.mjs"],
+      "status": "implemented"
+    },
+    {
+      "id": "DS-002",
+      "epic": "EPIC-002",
+      "source_story_ideas": ["SC-003"],
+      "journey": "SJ-002",
+      "acceptance": ["Visa varor sorterade efter när de bör användas"],
+      "implementation": ["app/app.js", "app/domain.mjs"],
+      "tests": ["tests/domain.test.mjs"],
+      "status": "implemented"
+    },
+    {
+      "id": "DS-003",
+      "epic": "EPIC-002",
+      "source_story_ideas": ["SC-004"],
+      "journey": "SJ-002",
+      "acceptance": ["Markera vara som använd"],
+      "implementation": ["app/app.js", "app/domain.mjs"],
+      "tests": ["tests/domain.test.mjs"],
+      "status": "implemented"
+    },
+    {
+      "id": "DS-004",
+      "epic": "EPIC-003",
+      "source_story_ideas": ["SC-005", "SC-006"],
+      "journey": "SJ-002",
+      "acceptance": ["Regelbaserade måltidsidéer prioriterar snart-dags-varor"],
+      "implementation": ["app/app.js", "app/domain.mjs"],
+      "tests": ["tests/domain.test.mjs"],
+      "status": "implemented"
+    },
+    {
+      "id": "DS-005",
+      "epic": "EPIC-004",
+      "source_story_ideas": ["SC-007", "SC-008"],
+      "journey": "SJ-003",
+      "acceptance": ["Manuell inköpslista", "Visa om liknande vara finns hemma"],
+      "implementation": ["app/app.js", "app/domain.mjs"],
+      "tests": ["tests/domain.test.mjs"],
+      "status": "implemented"
+    },
+    {
+      "id": "DS-006",
+      "epic": "EPIC-005",
+      "source_story_ideas": ["SC-009"],
+      "journey": null,
+      "acceptance": ["Radera all lokal data efter bekräftelse"],
+      "implementation": ["app/index.html", "app/app.js", "app/domain.mjs"],
+      "tests": ["tests/domain.test.mjs"],
+      "status": "implemented"
+    }
+  ],
+  "evidence": {
+    "test_command": "node tests\\domain.test.mjs",
+    "test_result": "Alla domäntester passerade.",
+    "qa_review": "docs/handoffs/qa-review.md",
+    "risk_ledger": "docs/governance/ai-risk-ledger.md"
+  }
+}

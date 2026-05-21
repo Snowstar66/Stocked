@@ -1,0 +1,985 @@
+{
+  "profile": "discovery_loop_accelerated",
+  "intent": "Accelerated governed discovery loop handoff",
+  "guidance": [
+    "Run a discovery loop from the Framing source of truth: inspect Outcome, Epics, Story Ideas, Journey Context, constraints, AI level and approval context before producing downstream artifacts.",
+    "Do not ask for confirmation at every refinement step. Make reasonable documented assumptions, batch open questions, and continue until a meaningful refinement package exists.",
+    "Use available specialist agents or BMAD-style roles when helpful, for example analyst, product, UX, architect, dev and QA perspectives, but keep one consolidated source-of-truth output.",
+    "Escalate to the human only for governance-sensitive decisions, missing critical facts, material scope changes, high-risk data/security/privacy issues, or approval/sign-off boundaries.",
+    "Return discovery outputs as traceable proposals linked back to Outcome -> Epic -> Story Idea -> Journey where applicable, plus assumptions, risks, suggested next experiments and validation checks."
+  ],
+  "source_of_truth": {
+    "kind": "framing_brief",
+    "version": 6,
+    "handshake": {
+      "outcome_key": "OUT-001",
+      "outcome_title": "Minska hushallets matsvinn genom battre oversikt och enklare vardagsbeslut",
+      "problem_statement": "Package Type: AAS Framing Import Package\r\nProduct: MatSvinnskollen\r\nVersion: 1.1-story-journey-import\r\nLanguage: sv-SE\r\nPhase: Framing\r\nTarget Next Phase: Design\r\nDomain: Application Development\r\nAI Acceleration Level: 2\r\nRisk Profile: medium\r\nHuman Mandate: Humans own Outcome approval, AI Acceleration Level, risk acceptance, scope expansion, external data sources, health/allergy/food-safety boundaries and release.\r\n\r\nProblem Statement ID: PS-001\r\nProblem Statement: Manga hushall koper mat som sedan gloms bort i kyl, frys eller skafferi. Det ar svart att halla oversikt over vad som finns hemma, vad som snart gar ut och vad som kan anvandas tillsammans i enkla maltider.\r\nBaseline: Utgangslaget ar att anvandaren saknar en samlad digital oversikt over matvaror i hemmet och darfor ofta upptacker varor forst nar de redan blivit daliga eller inte langre kanns anvandbara.\r\nBaseline Sources\r\n- Intervjuer med 5 testhushall | User discovery | Kvalitativt underlag for nulage, friktion och hushallets nuvarande planering.\r\n- Enkel nulagesenkat fore MVP-test | Baseline survey | Matar upplevd kontroll fore och efter testperiod.\r\n- Manuell observation av inkopslista | Observation | Observerar hur anvandare idag skapar inkopslista utan samlad lagerstatus.",
+      "outcome_statement": "Vi vill uppna att hushall enklare kan minska sitt matsvinn genom att fa battre oversikt over matvaror hemma, bli paminda om varor som snart bor anvandas och fa enkla maltidsforslag baserade pa befintliga varor.\r\n\r\n2 Target Effects Minskad andel utgangna eller bortglomda varor Okad anvandning av varor innan bast fore-datum Farre dubbla inkop Okad upplevd kontroll over hushallets matlager",
+      "timeframe": "MVP om 2 veckor",
+      "value_owner": "Frasse Friday",
+      "ai_level": "level_3",
+      "risk_profile": "medium",
+      "solution_context": null,
+      "constraints": "## General constraints\nImported constraints\n- Configuration and planning constraints: Planning Unit: MVP Calculation Granularity: item Reporting Granularity: user_test_period Forecast Horizon: 2\nImported design notes\n- Journey context design input: Journey Contexts - J-001 | Anvand forst det som snart gar ut | Hushallsanvandare | Journey Context. Outcome OUT-001 -> EPIC-002/EPIC-003 -> SI-003, SI-005, SI-006, SI-004 -> test intents for sorted soon-list, recipe s...\n\n## UX principles\nUX direction\nUX profile: Enterprise control plane (enterprise-control-plane)\nTarget surface: Responsive web app (responsive-web)\nColor schema: Nordic blue (nordic-blue)\nStyle authority: AAS suggested style (aas-suggested-style)\n\nStyle priority:\nThe selected AAS UX direction is the primary source unless explicit customer UX rules are added in the additional instructions.\nIf customer UX rules are supplied, downstream AI must explicitly resolve conflicts using this style authority before applying AAS profile, color, or signature component guidance.\n\nCore UX guidance:\nPrioritize dashboard density, strong hierarchy, audit-ready status, table/list scanning, durable navigation, and clear ownership of decisions.\n\nDownstream AI visual grammar:\nThe selected UX profile must materially change layout, components, density, navigation, and status treatment. Do not collapse this into a generic SaaS card UI.\n- Use dense control-plane layouts with compact rectangular cards, tables, right rails, and persistent navigation.\n- Prefer squared or small-radius controls, clear borders, muted surfaces, and high information density.\n- Place owner, status, evidence, version, and governance action together so the decision context is never hidden.\n\nSignature components to prefer when relevant:\nUse these as primary building blocks before generic button/select/input examples. Generic controls should support the signature component, not define the experience.\n- Approval matrix for comparing owners, evidence, risk, and approval state.\n- Audit trail rail beside forms and review screens.\n- Readiness scorecard for tollgate, release, or portfolio decisions.\n\nSurface guidance:\nDesign from responsive web constraints with clear desktop density and a readable mobile layout for core review and input tasks.\n\nColor guidance:\nUse cool blues with clean neutrals, restrained accents, high contrast, and a calm professional tone.\n\nAdditional UX instructions:\nSe till att svenska tecken fungerar och används.\n\n## Non-functional requirements\nImported non-functional requirements\n- AI governance and risk constraints: Human Mandate: Humans own Outcome approval, AI Acceleration Level, risk acceptance, scope expansion, external data sources, health/allergy/food-safety boundaries and release. Governance Requirements - Outcome, MVP sco...\n\n## Additional requirements\nImported additional requirements\n- Additional requirements - MVP scope: MVP In Scope - Manuell registrering av matvaror - Kategorisering av varor - Bast fore-datum eller ungefarigt anvand-fore-datum - Enkel oversikt over varor som snart bor anvandas - Enkel inkopslista baserad pa saknade ...",
+      "data_sensitivity": "Ingen",
+      "delivery_type": "AD",
+      "delivery_type_description": "Application Development: frame a new application, service or meaningful functional expansion. Keep focus on outcome, scope and why the capability should exist."
+    },
+    "baseline": {
+      "definition": "Anvandaren saknar samlad digital oversikt over matvaror i hemmet.",
+      "source": "Intervjuer med 5 testhushall | User discovery | Enkel nulagesenkat fore MVP-test | Baseline survey | Manuell observation av inkopslista | Observation\r\nMeasurement Method: Minst 60 procent av registrerade varor har kategori och datum | Minst 40 procent av anvandarna markerar minst en vara som anvand inom 14 dagar | Minst 30 procent av anvandarna anvander forslagsfunktionen minst en gang per vecka | Sjalvskattad oversikt okar fran baseline till uppfoljning",
+      "warnings": [],
+      "readiness": "ready"
+    },
+    "ai_and_risk": {
+      "execution_pattern": "orchestrated",
+      "ai_usage_intent": "BMAD",
+      "ai_level": "level_3",
+      "risk_profile": "medium",
+      "risk_rationale": {
+        "business_impact": "low: N/A",
+        "data_sensitivity": "medium: N/A",
+        "blast_radius": "low: N/A",
+        "decision_impact": "medium: N/A"
+      },
+      "level_3_justification": "N/A"
+    },
+    "framing_structure": {
+      "epic_count": 5,
+      "story_idea_count": 9,
+      "epics": [
+        {
+          "key": "EPIC-005",
+          "title": "Datakontroll och radering",
+          "scope_boundary": "Scope in: Inkluderar enkel radering av lokal data. Exkluderar kontohantering och molnsynk.\r\nScope out: Kontohantering | Molnsynk",
+          "story_ideas": [
+            {
+              "key": "SC-009",
+              "title": "Radera all lokal data",
+              "value_intent": "Anvandaren ska ha kontroll over sin information.",
+              "expected_behavior": "Anvandaren kan radera alla lokalt sparade varor och listor efter bekraftelse.",
+              "ux_sketches": []
+            }
+          ]
+        },
+        {
+          "key": "EPIC-001",
+          "title": "Hushallslager",
+          "scope_boundary": "Scope in: Inkluderar manuell registrering, kategori och ungefarigt datum. Exkluderar streckkodsscanning och externa produktdatabaser.\r\nScope out: Streckkodsscanning | Externa produktdatabaser",
+          "story_ideas": [
+            {
+              "key": "SC-001",
+              "title": "Lagg till matvara manuellt",
+              "value_intent": "Anvandaren ska snabbt kunna registrera en vara.",
+              "expected_behavior": "Anvandaren kan ange namn, kategori, antal och eventuellt datum.",
+              "ux_sketches": []
+            },
+            {
+              "key": "SC-002",
+              "title": "Visa lager i kategorier",
+              "value_intent": "Anvandaren ska fa snabb oversikt over sitt matlager.",
+              "expected_behavior": "Appen grupperar varor i exempelvis kyl, frys, skafferi eller egna kategorier.",
+              "ux_sketches": []
+            }
+          ]
+        },
+        {
+          "key": "EPIC-002",
+          "title": "Datum och prioritering",
+          "scope_boundary": "Scope in: Inkluderar enkel sortering och status baserat pa anvandarens registrerade datum. Exkluderar sakerhetsbedomning av mat.\r\nScope out: Sakerhetsbedomning av mat",
+          "story_ideas": [
+            {
+              "key": "SC-003",
+              "title": "Visa varor som bor anvandas snart",
+              "value_intent": "Anvandaren ska latt hitta varor som riskerar att glommas bort.",
+              "expected_behavior": "Appen visar en lista over varor sorterade efter nar de bor anvandas.",
+              "ux_sketches": []
+            },
+            {
+              "key": "SC-004",
+              "title": "Markera vara som anvand",
+              "value_intent": "Anvandaren ska kunna halla lagret aktuellt.",
+              "expected_behavior": "Anvandaren kan markera en vara som anvand, vilket tar bort eller minskar den i lagret.",
+              "ux_sketches": []
+            }
+          ]
+        },
+        {
+          "key": "EPIC-003",
+          "title": "Maltidsforslag",
+          "scope_boundary": "Scope in: Inkluderar enkla regelbaserade forslag. Exkluderar naringsberakning, allergianpassning och externa receptdatabaser.\r\nScope out: Naringsberakning | Allergianpassning | Externa receptdatabaser",
+          "story_ideas": [
+            {
+              "key": "SC-005",
+              "title": "Foresla maltid baserat pa valda varor",
+              "value_intent": "Anvandaren ska kunna anvanda befintliga varor mer effektivt.",
+              "expected_behavior": "Appen visar enkla maltidsideer baserat pa nagra registrerade varor.",
+              "ux_sketches": []
+            },
+            {
+              "key": "SC-006",
+              "title": "Prioritera varor som snart bor anvandas i forslag",
+              "value_intent": "Forslagen ska hjalpa anvandaren minska svinn.",
+              "expected_behavior": "Appen prioriterar forslag dar snart-dags-varor ingar.",
+              "ux_sketches": []
+            }
+          ]
+        },
+        {
+          "key": "EPIC-004",
+          "title": "Inkopsstod",
+          "scope_boundary": "Scope in: Inkluderar enkel manuell inkopslista. Exkluderar butikskoppling och prisjamforelse.\r\nScope out: Butikskoppling | Prisjamforelse",
+          "story_ideas": [
+            {
+              "key": "SC-007",
+              "title": "Skapa enkel inkopslista",
+              "value_intent": "Anvandaren ska kunna planera inkop baserat pa vad som saknas.",
+              "expected_behavior": "Anvandaren kan lagga till saknade varor i en inkopslista.",
+              "ux_sketches": []
+            },
+            {
+              "key": "SC-008",
+              "title": "Visa om vara redan finns hemma",
+              "value_intent": "Anvandaren ska undvika dubbla inkop.",
+              "expected_behavior": "Nar anvandaren lagger till en vara i inkopslistan visas om liknande vara redan finns i lagret.",
+              "ux_sketches": []
+            }
+          ]
+        }
+      ],
+      "unassigned_story_ideas": []
+    },
+    "journey_contexts": [
+      {
+        "id": "imported-story-journeys",
+        "outcome_id": "ec962877-fa7d-4b07-a6e2-a0623a559acc",
+        "initiative_type": "AD",
+        "title": "Imported Story Journeys",
+        "description": "Imported from flat journeycontexts records.",
+        "notes": null,
+        "journeys": [
+          {
+            "id": "J-001",
+            "title": "Anvand forst det som snart gar ut",
+            "type": "user",
+            "primary_actor": "Hushallsanvandare",
+            "supporting_actors": [],
+            "goal": "Anvandaren vill snabbt se vad som bor anvandas forst och valja en enkel maltid.",
+            "trigger": "Sondag kvall eller infor matplanering",
+            "narrative": null,
+            "value_moment": null,
+            "success_signals": [],
+            "current_state": "Anvandaren oppnar kyl och skafferi manuellt, forsoker minnas vad som finns och upptacker ofta for sent att nagot borde ha anvants tidigare.",
+            "desired_future_state": "Anvandaren oppnar appen, ser en kort lista over varor som bor anvandas snart och far ett eller flera enkla maltidsforslag.",
+            "pain_points": [
+              "The flow can start inconsistently when sondag kvall eller infor matplanering.",
+              "Status, ownership, or the next step can become unclear during the journey.",
+              "Manual coordination makes it harder to anvandaren vill snabbt se vad som bor anvandas forst och valja en enkel maltid in a predictable way."
+            ],
+            "desired_support": [
+              "A clear entry into the flow with visible trigger and ownership.",
+              "Supported progress with better overview of status, handoffs, and decisions.",
+              "Consistent support in the ending so it becomes easier to anvandaren vill snabbt se vad som bor anvandas forst och valja en enkel maltid and verify the result.",
+              "Support also aligned with existing Story Ideas: anvandaren ska latt hitta varor som riskerar att glommas bort.",
+              "Support also aligned with existing Story Ideas: appen visar en lista over varor sorterade efter nar de bor anvandas."
+            ],
+            "exceptions": [],
+            "notes": "Journey Context. Outcome OUT-001 -> EPIC-002/EPIC-003 -> SI-003, SI-005, SI-006, SI-004 -> test intents for sorted soon-list, recipe suggestions based on registered items and inventory update after use. Steps: J-001-S1 Oppna snart-dags-listan linked SI-003; J-001-S2 Valj varor att anvanda linked SI-005/SI-006; J-001-S3 Markera vara som anvand linked SI-004. Success: relevant item within 10 seconds, at least one item marked used, app feels helpful not blaming.",
+            "linked_epic_ids": [],
+            "linked_story_idea_ids": [
+              "SI-003",
+              "SI-004",
+              "SI-005",
+              "SI-006"
+            ],
+            "linked_figma_refs": [],
+            "steps": [
+              {
+                "id": "J-001-S1",
+                "title": "Anvand forst det som snart gar ut",
+                "actor": null,
+                "description": "Journey Context. Outcome OUT-001 -> EPIC-002/EPIC-003 -> SI-003, SI-005, SI-006, SI-004 -> test intents for sorted soon-list, recipe suggestions based on registered items and inventory update after use. Steps: J-001-S1 Oppna snart-dags-listan linked SI-003; J-001-S2 Valj varor att anvanda linked SI-005/SI-006; J-001-S3 Markera vara som anvand linked SI-004. Success: relevant item within 10 seconds, at least one item marked used, app feels helpful not blaming.",
+                "current_pain": null,
+                "desired_support": null,
+                "decision_point": false
+              }
+            ],
+            "coverage": {
+              "status": "covered",
+              "suggested_epic_ids": [
+                "9b3a2bba-be0d-4a47-8916-f06d7198aaba",
+                "7de9edc9-ac39-46da-a5d0-abaac4b983cc"
+              ],
+              "suggested_story_idea_ids": [
+                "00fa1795-ff1a-488a-8302-516df31126fd",
+                "3c2ce494-e541-48d6-8033-7b0adec2d575",
+                "850d118f-2d15-4850-b112-c25513421007"
+              ],
+              "suggested_new_story_ideas": [],
+              "notes": "AI-förslag baserat på journeytext, steg, nuvarande Story Ideas och tillhörande Epic-spår. Granska innan du accepterar."
+            }
+          },
+          {
+            "id": "SJ-001",
+            "title": "Story Journey: Registrera forsta matvarorna",
+            "type": "user",
+            "primary_actor": "Hushallsanvandare",
+            "supporting_actors": [],
+            "goal": "Sakerstalla att en ny anvandare snabbt kan skapa sin forsta lageroversikt utan onboarding eller hog friktion.",
+            "trigger": "Anvandaren oppnar appen forsta gangen och vill lagga in vad som finns hemma.",
+            "narrative": "Sakerstalla att en ny anvandare snabbt kan skapa sin forsta lageroversikt utan onboarding eller hog friktion.",
+            "value_moment": null,
+            "success_signals": [],
+            "current_state": null,
+            "desired_future_state": null,
+            "pain_points": [],
+            "desired_support": [],
+            "exceptions": [],
+            "notes": "Story Journey SJ-001. Outcome OUT-001 -> EPIC-001 -> SI-001/SI-002. Steps: SJ-001-S1 Starta snabbregistrering linked SI-001, test intent: start registration from home/start page; SJ-001-S2 Ange namn, kategori och antal linked SI-001, test intent: item can be saved with minimum necessary information; SJ-001-S3 Se varan i lageroversikten linked SI-002, test intent: registered item appears in correct view/category. Success: first item under 20 seconds, user understands item was saved, no instructions needed. | Human review needed: false",
+            "linked_epic_ids": [
+              "EPIC-001"
+            ],
+            "linked_story_idea_ids": [
+              "SI-001",
+              "SI-002"
+            ],
+            "linked_figma_refs": [],
+            "steps": [
+              {
+                "id": "SJ-001-S1",
+                "title": "Story Journey: Registrera forsta matvarorna",
+                "actor": null,
+                "description": "Story Journey SJ-001. Outcome OUT-001 -> EPIC-001 -> SI-001/SI-002. Steps: SJ-001-S1 Starta snabbregistrering linked SI-001, test intent: start registration from home/start page; SJ-001-S2 Ange namn, kategori och antal linked SI-001, test intent: item can be saved with minimum necessary information; SJ-001-S3 Se varan i lageroversikten linked SI-002, test intent: registered item appears in correct view/category. Success: first item under 20 seconds, user understands item was saved, no instructions needed.",
+                "current_pain": null,
+                "desired_support": null,
+                "decision_point": false
+              }
+            ],
+            "coverage": {
+              "status": "covered",
+              "suggested_epic_ids": [
+                "a08af64f-7209-4b9d-bbdc-cfd9630f7929"
+              ],
+              "suggested_story_idea_ids": [
+                "a82e958a-a051-4da9-8edd-c0837bfcdcdd"
+              ],
+              "suggested_new_story_ideas": [],
+              "notes": "AI-förslag baserat på journeytext, steg, nuvarande Story Ideas och tillhörande Epic-spår. Granska innan du accepterar."
+            }
+          },
+          {
+            "id": "SJ-002",
+            "title": "Story Journey: Anvand forst det som snart gar ut",
+            "type": "user",
+            "primary_actor": "Hushallsanvandare",
+            "supporting_actors": [],
+            "goal": "Hjalpa anvandaren omsatta lageroversikt till konkret handling som minskar matsvinn.",
+            "trigger": "Anvandaren vill planera dagens eller veckans mat.",
+            "narrative": "Hjalpa anvandaren omsatta lageroversikt till konkret handling som minskar matsvinn.",
+            "value_moment": null,
+            "success_signals": [],
+            "current_state": null,
+            "desired_future_state": null,
+            "pain_points": [],
+            "desired_support": [],
+            "exceptions": [],
+            "notes": "Story Journey SJ-002. Outcome OUT-001 -> EPIC-002/EPIC-003 -> SI-003/SI-004/SI-005/SI-006. Steps: SJ-002-S1 Oppna snart-dags-listan linked SI-003, test intent: nearest dates shown highest; SJ-002-S2 Valj vara att anvanda linked SI-003, test intent: selectable item from soon-list; SJ-002-S3 Fa enkelt maltidsforslag linked SI-005, test intent: suggestions use registered items and no external recipe data; SJ-002-S4 Markera vara som anvand linked SI-004, test intent: item removed or reduced in inventory. Success: prioritized item within 10 seconds, at least one relevant suggestion, inventory can be updated after use. Human review required: food/date wording must not imply safety advice. | Human review needed: true | Human review reason: Maltidsforslag och datumformuleringar far inte uppfattas som livsmedelssakerhetsrad.",
+            "linked_epic_ids": [
+              "EPIC-002",
+              "EPIC-003"
+            ],
+            "linked_story_idea_ids": [
+              "SI-003",
+              "SI-004",
+              "SI-005",
+              "SI-006"
+            ],
+            "linked_figma_refs": [],
+            "steps": [
+              {
+                "id": "SJ-002-S1",
+                "title": "Story Journey: Anvand forst det som snart gar ut",
+                "actor": null,
+                "description": "Story Journey SJ-002. Outcome OUT-001 -> EPIC-002/EPIC-003 -> SI-003/SI-004/SI-005/SI-006. Steps: SJ-002-S1 Oppna snart-dags-listan linked SI-003, test intent: nearest dates shown highest; SJ-002-S2 Valj vara att anvanda linked SI-003, test intent: selectable item from soon-list; SJ-002-S3 Fa enkelt maltidsforslag linked SI-005, test intent: suggestions use registered items and no external recipe data; SJ-002-S4 Markera vara som anvand linked SI-004, test intent: item removed or reduced in inventory. Success: prioritized item within 10 seconds, at least one relevant suggestion, inventory can be updated after use. Human review required: food/date wording must not imply safety advice.",
+                "current_pain": null,
+                "desired_support": null,
+                "decision_point": false
+              }
+            ],
+            "coverage": {
+              "status": "covered",
+              "suggested_epic_ids": [
+                "9b3a2bba-be0d-4a47-8916-f06d7198aaba"
+              ],
+              "suggested_story_idea_ids": [
+                "ac52f255-d071-4a3f-988f-e38ff2998735"
+              ],
+              "suggested_new_story_ideas": [],
+              "notes": "AI-förslag baserat på journeytext, steg, nuvarande Story Ideas och tillhörande Epic-spår. Granska innan du accepterar."
+            }
+          },
+          {
+            "id": "SJ-003",
+            "title": "Story Journey: Undvik dubbla inkop",
+            "type": "user",
+            "primary_actor": "Hushallsanvandare",
+            "supporting_actors": [],
+            "goal": "Hjalpa anvandaren skapa inkopslista utan att kopa varor som redan finns hemma.",
+            "trigger": "Anvandaren planerar inkop.",
+            "narrative": "Hjalpa anvandaren skapa inkopslista utan att kopa varor som redan finns hemma.",
+            "value_moment": null,
+            "success_signals": [],
+            "current_state": null,
+            "desired_future_state": null,
+            "pain_points": [],
+            "desired_support": [],
+            "exceptions": [],
+            "notes": "Story Journey SJ-003. Outcome OUT-001 -> EPIC-001/EPIC-004 -> SI-002/SI-007/SI-008. Steps: SJ-003-S1 Oppna inkopslistan linked SI-007, test intent: shopping list opens from main navigation or start; SJ-003-S2 Lagg till vara i inkopslistan linked SI-007, test intent: item can be saved in shopping list; SJ-003-S3 Fa signal om liknande vara redan finns linked SI-008, test intent: app shows simple signal when matching item exists in inventory. Success: user sees if item exists at home, can choose to add anyway, app feels helpful not blocking. | Human review needed: false",
+            "linked_epic_ids": [
+              "EPIC-001",
+              "EPIC-004"
+            ],
+            "linked_story_idea_ids": [
+              "SI-002",
+              "SI-007",
+              "SI-008"
+            ],
+            "linked_figma_refs": [],
+            "steps": [
+              {
+                "id": "SJ-003-S1",
+                "title": "Story Journey: Undvik dubbla inkop",
+                "actor": null,
+                "description": "Story Journey SJ-003. Outcome OUT-001 -> EPIC-001/EPIC-004 -> SI-002/SI-007/SI-008. Steps: SJ-003-S1 Oppna inkopslistan linked SI-007, test intent: shopping list opens from main navigation or start; SJ-003-S2 Lagg till vara i inkopslistan linked SI-007, test intent: item can be saved in shopping list; SJ-003-S3 Fa signal om liknande vara redan finns linked SI-008, test intent: app shows simple signal when matching item exists in inventory. Success: user sees if item exists at home, can choose to add anyway, app feels helpful not blocking.",
+                "current_pain": null,
+                "desired_support": null,
+                "decision_point": false
+              }
+            ],
+            "coverage": {
+              "status": "covered",
+              "suggested_epic_ids": [
+                "7439dee5-92c9-47c5-9279-8ac44e71e393"
+              ],
+              "suggested_story_idea_ids": [
+                "3f38173b-9d49-4650-9a88-105ef38c2602"
+              ],
+              "suggested_new_story_ideas": [],
+              "notes": "AI-förslag baserat på journeytext, steg, nuvarande Story Ideas och tillhörande Epic-spår. Granska innan du accepterar."
+            }
+          },
+          {
+            "id": "SJ-004",
+            "title": "Story Journey: Radera lokal data",
+            "type": "user",
+            "primary_actor": "Hushallsanvandare",
+            "supporting_actors": [],
+            "goal": "Sakerstalla att anvandaren har kontroll over lokalt sparad information.",
+            "trigger": "Anvandaren vill nollstalla appen eller ta bort sin information.",
+            "narrative": "Sakerstalla att anvandaren har kontroll over lokalt sparad information.",
+            "value_moment": null,
+            "success_signals": [],
+            "current_state": null,
+            "desired_future_state": null,
+            "pain_points": [],
+            "desired_support": [],
+            "exceptions": [],
+            "notes": "Story Journey SJ-004. Outcome OUT-001 -> EPIC-005 -> SI-009. Steps: SJ-004-S1 Oppna datakontroll linked SI-009, test intent: data control reachable from settings or equivalent; SJ-004-S2 Bekrafta radering linked SI-009, test intent: deletion requires confirmation; SJ-004-S3 Se att data ar raderad linked SI-009, test intent: inventory and shopping list are empty after deletion. Success: user can delete data without account/support, deletion is clear and consequence is understood. | Human review needed: false",
+            "linked_epic_ids": [
+              "EPIC-005"
+            ],
+            "linked_story_idea_ids": [
+              "SI-009"
+            ],
+            "linked_figma_refs": [],
+            "steps": [
+              {
+                "id": "SJ-004-S1",
+                "title": "Story Journey: Radera lokal data",
+                "actor": null,
+                "description": "Story Journey SJ-004. Outcome OUT-001 -> EPIC-005 -> SI-009. Steps: SJ-004-S1 Oppna datakontroll linked SI-009, test intent: data control reachable from settings or equivalent; SJ-004-S2 Bekrafta radering linked SI-009, test intent: deletion requires confirmation; SJ-004-S3 Se att data ar raderad linked SI-009, test intent: inventory and shopping list are empty after deletion. Success: user can delete data without account/support, deletion is clear and consequence is understood.",
+                "current_pain": null,
+                "desired_support": null,
+                "decision_point": false
+              }
+            ],
+            "coverage": {
+              "status": "covered",
+              "suggested_epic_ids": [
+                "32a1163c-e7d8-46ea-bb9f-e982ad1b0e8a"
+              ],
+              "suggested_story_idea_ids": [
+                "e2000747-79cb-47ca-9ac2-aa6743653026"
+              ],
+              "suggested_new_story_ideas": [],
+              "notes": "AI-förslag baserat på journeytext, steg, nuvarande Story Ideas och tillhörande Epic-spår. Granska innan du accepterar."
+            }
+          }
+        ]
+      }
+    ],
+    "downstream_ai_instructions": {
+      "initiativeType": "AD",
+      "aiLevel": 3,
+      "mandatoryControls": [
+        {
+          "id": "MC-1",
+          "title": "Preserve Epic -> Story -> Test traceability",
+          "description": "Keep downstream AI outputs linked from Epic through Story to later test intent.",
+          "enabled": true
+        },
+        {
+          "id": "MC-2",
+          "title": "Preserve AI-level-specific review expectations",
+          "description": "Keep review strictness aligned with the current AI level.",
+          "enabled": true
+        },
+        {
+          "id": "MC-3",
+          "title": "Preserve human approval on critical decisions",
+          "description": "Do not let downstream AI remove human approval where decision impact or governance requires it.",
+          "enabled": true
+        },
+        {
+          "id": "MC-4",
+          "title": "Preserve security/privacy/compliance constraints",
+          "description": "Carry security, privacy, compliance, and data sensitivity constraints forward into downstream AI behavior.",
+          "enabled": true
+        },
+        {
+          "id": "MC-5",
+          "title": "Preserve testability and binary acceptance intent",
+          "description": "Keep downstream refinement tied to later testability and acceptance clarity.",
+          "enabled": true
+        },
+        {
+          "id": "MC-6",
+          "title": "Preserve reproducibility expectations at higher AI levels",
+          "description": "At higher AI levels, keep logs, reproducibility, and reviewability expectations visible in downstream work.",
+          "enabled": true
+        }
+      ],
+      "refinementPreferences": [
+        {
+          "id": "E1",
+          "group": "epic",
+          "title": "Keep each Epic centered on one coherent capability/value area",
+          "description": "Prefer clear scope and one main value center per Epic",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "E2",
+          "group": "epic",
+          "title": "Separate user-facing Epics from enabling/platform/compliance Epics",
+          "description": "Avoid mixing visible user change with enabling work unless needed",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "E3",
+          "group": "epic",
+          "title": "Minimize cross-Epic dependencies",
+          "description": "Prefer decomposition that reduces orchestration overhead",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "E4",
+          "group": "epic",
+          "title": "Preserve Journey Context during Epic refinement",
+          "description": "Keep flow context visible when Journey Context exists",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "E5",
+          "group": "epic",
+          "title": "Prefer standard patterns before variants",
+          "description": "Reuse common refinement patterns before special cases",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "E6",
+          "group": "epic",
+          "title": "Model transition/coexistence work as explicit Epics",
+          "description": "Separate migration/coexistence concerns when needed",
+          "recommended": "NO",
+          "selectedValue": "NO",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "E7",
+          "group": "epic",
+          "title": "Model operability/stability work as explicit Epics",
+          "description": "Make runability/stability visible as delivery structure when useful",
+          "recommended": "NO",
+          "selectedValue": "NO",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "S1",
+          "group": "story",
+          "title": "Keep each Story Idea centered on one primary intent",
+          "description": "Prefer one main intent per Story Idea",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "S2",
+          "group": "story",
+          "title": "Tie each Story Idea to an actor, journey step, or trigger",
+          "description": "Preserve context when refining Story Ideas",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "S3",
+          "group": "story",
+          "title": "Split large Story Ideas before Design if verification would be hard",
+          "description": "Prefer refinement into verifiable units",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "S4",
+          "group": "story",
+          "title": "Require future testability when refining Story Ideas",
+          "description": "Keep refined Story Ideas mappable to later testable delivery",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": false,
+          "rationale": null
+        },
+        {
+          "id": "S5",
+          "group": "story",
+          "title": "Keep architecture direction lightweight at Story Idea level",
+          "description": "Avoid locking technical design too early",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "S6",
+          "group": "story",
+          "title": "Force Story Type classification during refinement",
+          "description": "Preserve explicit Story category such as Feature, Refactor, Bugfix, Exploration",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "S7",
+          "group": "story",
+          "title": "Force AI Usage Scope visibility when downstream AI is expected",
+          "description": "Preserve visibility of intended AI usage",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "S8",
+          "group": "story",
+          "title": "Require rollback/fallback thinking for risky Story Ideas",
+          "description": "Preserve reversibility thinking for risky work",
+          "recommended": "NO",
+          "selectedValue": "NO",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "J1",
+          "group": "journey",
+          "title": "Use Journey Context as a primary refinement source when present",
+          "description": "Let Journey Context actively influence refinement",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "J2",
+          "group": "journey",
+          "title": "Preserve journey-to-story traceability when Journey Context exists",
+          "description": "Preserve explainability between Journeys and Story Ideas",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "J3",
+          "group": "journey",
+          "title": "Allow AI to suggest missing journey/story mappings",
+          "description": "Enable AI-assisted mapping support",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "J4",
+          "group": "journey",
+          "title": "Prefer actor and flow continuity when Journey Context exists",
+          "description": "Preserve flow continuity in refinement",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "J5",
+          "group": "journey",
+          "title": "Allow Story Ideas to stand without Journey Context when Journey Context is absent",
+          "description": "Keep tool useful without Journey Context",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": false,
+          "rationale": null
+        },
+        {
+          "id": "D1",
+          "group": "design",
+          "title": "Optimize for modularity and future changeability",
+          "description": "Favor low coupling and evolvable structure",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "D2",
+          "group": "design",
+          "title": "Prefer reuse when fit-for-purpose",
+          "description": "Evaluate existing assets before new build-out",
+          "recommended": "NO",
+          "selectedValue": "NO",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "D3",
+          "group": "design",
+          "title": "Prefer integration discipline over shortcuts",
+          "description": "Avoid tactical and opaque integration design",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "D4",
+          "group": "design",
+          "title": "Make data ownership and classification explicit",
+          "description": "Preserve data boundaries and source-of-truth clarity",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": false,
+          "rationale": null
+        },
+        {
+          "id": "D5",
+          "group": "design",
+          "title": "Preserve security/privacy/compliance in design proposals",
+          "description": "Keep compliance and sensitive-data rules active in Design",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": false,
+          "rationale": null
+        },
+        {
+          "id": "D6",
+          "group": "design",
+          "title": "Make observability and operability part of Design",
+          "description": "Keep runability and diagnostics as design concerns",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "D7",
+          "group": "design",
+          "title": "Separate experimentation zones from stable zones",
+          "description": "Preserve experimentation boundary where relevant",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "D8",
+          "group": "design",
+          "title": "Prefer continuity over architectural purity when needed",
+          "description": "Favor safer transition when context requires it",
+          "recommended": "NO",
+          "selectedValue": "NO",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "D9",
+          "group": "design",
+          "title": "Prefer phased rollout over big bang",
+          "description": "Preserve controlled rollout thinking",
+          "recommended": "NO",
+          "selectedValue": "NO",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "B1",
+          "group": "build",
+          "title": "Require Story and Epic traceability for all implementation work",
+          "description": "Preserve implementation lineage",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": false,
+          "rationale": null
+        },
+        {
+          "id": "B2",
+          "group": "build",
+          "title": "Require traceability for AI-generated implementation artifacts",
+          "description": "Keep AI-generated artifacts linked to Story/Test context",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": false,
+          "rationale": null
+        },
+        {
+          "id": "B3",
+          "group": "build",
+          "title": "Enforce AI-level-specific review and reproducibility rules",
+          "description": "Keep review/reproducibility aligned with AI level",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": false,
+          "rationale": null
+        },
+        {
+          "id": "B4",
+          "group": "build",
+          "title": "Require test strategy proportional to Story risk/type",
+          "description": "Preserve verification expectations",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": false,
+          "rationale": null
+        },
+        {
+          "id": "B5",
+          "group": "build",
+          "title": "Require architecture/security checks in review or CI/CD",
+          "description": "Keep structural and security controls active in Build",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "B6",
+          "group": "build",
+          "title": "Prefer automatically generated release evidence",
+          "description": "Favor generated evidence/logging where feasible",
+          "recommended": "YES",
+          "selectedValue": "YES",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "B7",
+          "group": "build",
+          "title": "Treat support/runbook/handover updates as part of done",
+          "description": "Preserve operational readiness in completion rules",
+          "recommended": "NO",
+          "selectedValue": "NO",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "B8",
+          "group": "build",
+          "title": "Prefer low blast radius and reversibility in rollout",
+          "description": "Favor smaller and safer release mechanics",
+          "recommended": "NO",
+          "selectedValue": "NO",
+          "allowNa": true,
+          "rationale": null
+        },
+        {
+          "id": "B9",
+          "group": "build",
+          "title": "Allow emergency handling only with retroactive traceability",
+          "description": "Preserve control in urgent cases",
+          "recommended": "NO",
+          "selectedValue": "NO",
+          "allowNa": false,
+          "rationale": null
+        }
+      ],
+      "customInstructions": [
+        {
+          "id": "discovery-loop-accelerator",
+          "title": "Discovery loop accelerator",
+          "body": "Downstream AI should run an accelerated discovery loop from this Framing package instead of asking for approval at every ordinary refinement step.\nStart by inspecting Outcome, Epics, Story Ideas, Journey Context, constraints, AI level, risk posture and approval context.\nUse available specialist agents or BMAD-style roles when helpful, for example analyst, product, UX, architect, dev and QA perspectives, but return one consolidated source-of-truth output.\nMake reasonable documented assumptions, batch open questions, and continue until a meaningful refinement package exists.\nEscalate to the human only for governance-sensitive decisions, missing critical facts, material scope changes, high-risk data/security/privacy issues, or approval/sign-off boundaries.\nReturn traceable discovery outputs linked back to Outcome -> Epic -> Story Idea -> Journey where applicable, plus assumptions, risks, suggested next experiments and validation checks.",
+          "category": "General",
+          "priority": "High"
+        },
+        {
+          "id": "aas-level-3-orchestrated-agentic-delivery",
+          "title": "AAS Level 3 - Orchestrated Agentic Delivery",
+          "body": "Use the following instruction as the governing delivery mode for this project.\n\nThe selected AI Acceleration Level is Level 3: Orchestrated Agentic Delivery under AAS.\n\nApply it to all analysis, design, refinement, implementation, testing, documentation and reporting in this project unless I explicitly change the acceleration level.\n\nThe project handoff and source material is located in the path I provide. If I do not provide a path, look for project material in common documentation locations such as `docs/`, `README.md`, `prd/`, `requirements/`, `specs/`, `stories/`, or equivalent project folders.\n\nUse the available project material as the initial source of truth.\n\nIf anything is ambiguous, log it in the Analyst handoff, workflow log, decision log or AI Risk Ledger instead of guessing silently.\n\nI am the user proxy for human approvals unless I name another mandate holder.\n\nAutoapprove any:\n\n- value direction,\n- business priority,\n- scope boundary,\n- risk acceptance,\n- release approval,\n- missing business context that cannot be inferred safely.\n\nDo not ask me for low-risk implementation details, naming choices, file organization, minor UI copy, internal technical structure, test naming, formatting, story splitting, acceptance-criteria drafting, or obvious refinements that stay inside approved scope and do not affect value, data, security, architecture, dependencies, UX-critical behavior, cost, release risk or scope.\n\nStart by reading the available project material, then initialize the required governance and handoff structure before any implementation.\n\n# AI Acceleration Level 3: Orchestrated Agentic Delivery under AAS\n\nThis instruction applies to any BMAD/AAS/SDD project where the selected AI Acceleration Level is Level 3: Orchestrated Agentic Delivery.\n\nAI may work with high autonomy only inside a documented, role-orchestrated workflow.\n\nAutonomy must increase traceability, review, reproducibility and human control — never reduce them.\n\nLevel 3 governance must shift documentation, traceability, review preparation and evidence collection to AI.\n\nThe human user should mainly respond to value, scope, risk and release decisions — not to every delivery detail.\n\nThe requested level is Level 3, but the final report must state the actually achieved AI level based on produced evidence.\n\nIf Level 3 evidence cannot be produced, AI must not claim full Level 3 completion.\n\n## Default Governance Structure\n\nUnless the project defines another governance/documentation structure, use these default paths:\n\n- `docs/agent-handoffs/`\n- `docs/governance/`\n- `docs/traceability/`\n\nIf the project uses different paths, AI must document the chosen paths in the workflow log and use them consistently.\n\nMissing governance artifacts are not by themselves a reason to stop. AI should create or update them and continue unless the missing information creates a material value, scope, data, security, architecture or release risk.\n\nAI may create missing governance artifacts and continue, but must not invent missing business decisions, risk acceptance or release approval.\n\nUse `AI Risk Ledger` as the primary AAS artifact.\n\nIf the project already uses a Risk Register, it may be used as the equivalent artifact only if it contains the required AI-specific risk fields.\n\n## AAS Governing Principles\n\nThe delivery must follow these non-negotiable AAS principles:\n\n- Outcome before output.\n- Value Spine is mandatory: Outcome → Epic → Story → Test.\n- AI is a formally governed acceleration level, not an informal tool.\n- Human Mandate always applies.\n- AI may not accept risk, approve release or override human scope decisions.\n- Risk profile governs the selected AI Acceleration Level.\n- No AI-generated implementation artifact may exist without traceability.\n- Reproducibility and AI-review must be proportionate to the selected level.\n- The final report must distinguish between intended process and actually evidenced process.\n\n## Low-Friction Operating Rule\n\nAI must minimize human interruption.\n\nAI should proceed autonomously when all of the following are true:\n\n- the work is inside approved or clearly implied scope,\n- the value intent is clear,\n- the risk is low or medium and mitigated,\n- no new external data flow is introduced,\n- no new security-sensitive behavior is introduced,\n- no new dependency or architecture shift is introduced,\n- no explicit scope-out is affected,\n- implementation can be traced to Outcome/Epic/Story/Test or provisional mapping,\n- test or verification approach is available,\n- required Level 3 pre-implementation handoffs exist or a documented exception exists.\n\nAI must not ask the user to approve routine delivery mechanics.\n\nExamples of decisions AI should make and log without asking:\n\n- naming of internal files,\n- test file naming,\n- local code organization inside existing architecture,\n- minor UI copy refinements,\n- small accessibility improvements,\n- formatting,\n- obvious bugfix approach,\n- applying existing project patterns,\n- creating AI-proposed acceptance criteria from expected behavior,\n- splitting a broad story idea into smaller AI-proposed Stories,\n- classifying a framing idea as Candidate Story, Exploration, Epic Candidate, Journey / UX Context or Deferred,\n- choosing proportional test files based on existing project practice,\n- updating handoff and traceability artifacts.\n\nAI must ask the user only when the decision affects:\n\n- value direction,\n- business priority,\n- scope boundary,\n- user-facing behavior with material UX impact,\n- sensitive data,\n- security,\n- external services,\n- architecture,\n- dependencies,\n- cost,\n- release risk,\n- residual risk acceptance,\n- explicit scope-out,\n- unclear business meaning.\n\n## Human Authority and Proxy Rule\n\nThe human user interacting with AI is the communication proxy for required human mandate holders unless another named mandate holder is explicitly provided.\n\nWhen AI requires approval from a Value Owner, Risk Owner, Release Owner or other human authority, it must ask the user.\n\nAI may treat user-provided approval as the operative approval signal available in the tool context, but must log whether the user is:\n\n- the actual mandate holder,\n- an explicitly delegated proxy,\n- or an unverified proxy.\n\nIf mandate is unverified, the decision must be recorded as a residual governance risk.\n\nAI may not infer human approval from silence.\n\nAny approval must be logged with:\n\n- date/time if available,\n- approving user or named mandate holder,\n- affected Outcome/Epic/Story/artifact,\n- decision made,\n- accepted risk if relevant,\n- remaining condition or follow-up if relevant.\n\n## Approval Ergonomics\n\nAI must minimize human approval burden by batching related approvals into concise value checkpoints.\n\nEach approval request must include:\n\n- value decision needed,\n- recommended option,\n- alternatives,\n- risk if approved,\n- risk if not approved,\n- affected Outcome/Epic/Story,\n- whether approval blocks implementation.\n\nAI must not ask for approval on low-risk delivery mechanics that are already inside approved scope and do not affect:\n\n- value direction,\n- business priority,\n- scope,\n- material UX behavior,\n- sensitive data,\n- security,\n- architecture,\n- dependencies,\n- cost,\n- release risk,\n- residual risk acceptance.\n\nAI should use short approval formats such as:\n\n- APPROVE\n- APPROVE VALUE DIRECTION\n- APPROVE WITH CONDITION: [condition]\n- REJECT\n- DEFER\n- REQUEST CHANGE: [change]\n\nHuman approval may be given in natural language. AI must interpret it conservatively and log the decision.\n\nIf user feedback is directionally clear but not formal, AI may proceed only inside low-risk scope and must log the decision as interpreted user direction, not formal risk acceptance.\n\n## Agent Execution Transparency\n\nThe final report and workflow log must distinguish between:\n\n- actual multi-agent execution, where separate agents or roles produced independent artifacts,\n- single-agent simulated role reasoning, where one AI performed multiple role perspectives,\n- human decisions,\n- AI-generated assumptions,\n- unresolved risks,\n- unverified approvals,\n- bypasses and exceptions.\n\nIf actual multi-agent execution is not technically available, AI may proceed using simulated role reasoning only if it documents this limitation in the workflow log and applies compensating controls:\n\n- explicit role artifacts,\n- stricter QA review,\n- risk ledger entries,\n- clear final-report disclosure,\n- no claim of independent multi-agent execution.\n\nIf QA/AQA is performed by the same AI system that produced the implementation, it must be labelled as simulated QA review, not independent approval.\n\nIndependent AQA approval exists only when a separate human, tool, agent instance, or review process has performed the review with documented separation from the implementation activity.\n\nA role is not independent merely because the same AI changes perspective. Independence requires documented separation of execution context, reviewer, tool run, agent instance, or human review.\n\n## AAS Value Spine\n\nAll work must be traceable through:\n\nOutcome → Epic → Story → Test\n\nNo implementation artifact may exist without:\n\n- Story-ID,\n- Epic and Outcome mapping,\n- AI Acceleration Level,\n- AI Usage Scope,\n- acceptance criteria,\n- test definition,\n- Definition of Done.\n\nEach Story must include:\n\n- Story-ID,\n- title,\n- Story Type,\n- Value Intent,\n- linked Epic,\n- linked Outcome,\n- acceptance criteria,\n- AI Acceleration Level,\n- AI Usage Scope,\n- test definition,\n- Definition of Done,\n- implementation reference,\n- test evidence reference.\n\nIf acceptance criteria are missing from the baseline, AI may propose acceptance criteria, but they must be marked as AI-proposed until accepted by the user proxy or mandate holder.\n\nAI may group multiple AI-proposed Stories under one value checkpoint instead of asking for acceptance one by one.\n\nAI Usage Scope must use one or more of:\n\n- CONTENT — documentation, reports, summaries, requirements text,\n- TEST — test cases, test data, test code,\n- CODE — executable code or refactoring,\n- DESIGN — architecture, design alternatives, modelling,\n- OPS — operational analysis, incident/change support,\n- AGENTIC — agent workflow or agent chain producing artifacts or executing steps.\n\nScope CODE, OPS and AGENTIC require stricter evidence and review.\n\nAGENTIC scope requires documented workflow, versioning, tool boundaries and isolated test evidence.\n\n## Framing Input Handling: Story Ideas\n\nThe project source material may contain framing-level user story ideas with value intent and expected behavior.\n\nAI must not treat framing-level story ideas as implementation-ready Delivery Stories.\n\nFraming-level story ideas are refinement inputs, not build authorization.\n\nA framing-level story idea may be used as input to create an AI-proposed Delivery Story, but it must first be refined through the Level 3 handoff workflow and marked as provisional until accepted by the user proxy or mandate holder.\n\nFor each story idea, AI must classify it as one of:\n\n- Candidate Delivery Story — likely implementable after refinement.\n- Exploration Story — requires investigation, design validation or technical spike.\n- Epic Candidate — too broad and should be split into multiple Stories.\n- Acceptance Criteria Candidate — useful behavior statement but not a Story.\n- Journey / UX Context — useful for user flow, screen model or interaction risk.\n- Out of Scope / Deferred — outside approved scope or requires later decision.\n\nEach refined AI-proposed Delivery Story must include:\n\n- Story-ID or proposed Story-ID,\n- source story idea reference,\n- value intent,\n- expected behavior,\n- linked or provisional Epic,\n- linked or provisional Outcome,\n- AI-proposed acceptance criteria,\n- AI Acceleration Level,\n- AI Usage Scope,\n- test definition,\n- Definition of Done where available,\n- open questions,\n- risk notes,\n- approval status,\n- required handoff references.\n\nStory ideas must be processed through the required Level 3 role mandates:\n\n- Analyst classifies the story idea, ambiguity, baseline source and scope fit.\n- Product / PM / Value Owner validates value intent, priority and acceptance direction.\n- UX Designer maps journey, screen implications, interaction risk and accessibility notes.\n- Solution / AI Delivery Architect assesses technical feasibility, architecture impact, data/security/dependency risk and Level 3 suitability.\n- Developer may only implement after the required pre-implementation handoffs and Development Plan exist.\n- QA/AQA must review implementation against the refined Story, baseline, handoffs, tests and risk ledger.\n\nAI may propose acceptance criteria from expected behavior, but must mark them as AI-proposed until accepted.\n\nImplementation may not start directly from a framing-level story idea unless:\n\n- it has been refined into a Delivery Story,\n- required Level 3 handoffs exist,\n- the Development Plan exists,\n- the implementation remains inside approved scope,\n- no unaccepted high risk exists,\n- test or verification evidence can be produced.\n\nAI must ask for a value checkpoint when:\n\n- the story idea changes product direction,\n- several possible value interpretations exist,\n- prioritization affects what gets built first,\n- expected behavior is materially ambiguous,\n- implementation would change UX materially,\n- implementation affects data, security, architecture, dependencies, cost, release risk or scope,\n- residual risk requires acceptance.\n\nAI must not ask the user to approve low-risk refinement mechanics such as internal naming, story splitting, test naming, file organization or obvious acceptance-criteria drafting when value intent is clear and risk remains inside approved scope.\n\nAI may batch multiple refined story ideas into one concise value checkpoint.\n\nIf implementation proceeds from AI-proposed Stories without individual user acceptance, the final report must disclose that these Stories were AI-refined within approved scope and identify any remaining acceptance or release risk.\n\nIf the framing input is incomplete, AI must log missing information and either:\n\n- continue with provisional mapping if risk is low,\n- ask the user for missing business context,\n- classify the item as Exploration,\n- or defer implementation.\n\n## Required Role Mandates\n\nThe workflow must explicitly cover these role mandates.\n\nA mandate may be executed by a human, agent, or combined role, but responsibility and approval authority must be clear.\n\n### Analyst\n\nResponsibilities:\n\n- requirement interpretation,\n- ambiguity log,\n- baseline mapping,\n- source-of-truth identification,\n- scope-in/scope-out validation,\n- unresolved assumption register,\n- classification of framing-level story ideas,\n- vocabulary and terminology ambiguity detection.\n\nDefault artifact:\n\n`docs/agent-handoffs/01-analyst-handoff.md`\n\nMust include:\n\n- interpreted requirements,\n- ambiguity log,\n- source baseline,\n- scope-in items,\n- scope-out items,\n- assumptions,\n- missing information,\n- initial risk notes,\n- story idea classification where relevant,\n- terminology assumptions and ambiguities.\n\n### Product / PM / Value Owner\n\nResponsibilities:\n\n- Outcome validation,\n- scope and priority,\n- acceptance criteria,\n- decision classification,\n- MVP/release boundary,\n- value checkpoint preparation,\n- residual risk acceptance through human/user-proxy approval.\n\nDefault artifact:\n\n`docs/agent-handoffs/02-product-handoff.md`\n\nMust include:\n\n- Outcome statement,\n- Value Spine draft,\n- Epic list,\n- prioritization,\n- acceptance principles,\n- explicit decisions,\n- deferred decisions,\n- user-proxy approvals,\n- residual risks requiring human acceptance,\n- handling of story ideas and AI-proposed Stories.\n\n### UX Designer\n\nResponsibilities:\n\n- journey-to-screen model,\n- interaction risks,\n- accessibility notes,\n- usability assumptions,\n- user flow and navigation implications,\n- UX classification of story ideas.\n\nDefault artifact:\n\n`docs/agent-handoffs/03-ux-handoff.md`\n\nMust include:\n\n- journey context,\n- screen model,\n- primary user flows,\n- interaction risks,\n- accessibility considerations,\n- mobile/responsive considerations if relevant,\n- UX acceptance notes,\n- story ideas classified as Journey / UX Context where relevant.\n\n### Solution / AI Delivery Architect\n\nResponsibilities:\n\n- technical design,\n- data model,\n- architecture constraints,\n- dependency review,\n- security review,\n- AI workflow and tool boundary definition,\n- reproducibility approach,\n- architecture risks,\n- technical classification of story ideas,\n- behavioural contract surface identification,\n- compatibility policy assessment,\n- AI technical debt assessment,\n- downgrade recommendation if Level 3 is not justified.\n\nDefault artifact:\n\n`docs/agent-handoffs/04-architecture-handoff.md`\n\nMust include:\n\n- architecture overview,\n- data model,\n- constraints,\n- dependencies,\n- security and privacy notes,\n- AI workflow boundaries,\n- tool access boundaries,\n- reproducibility requirements,\n- test strategy,\n- behavioural contract test approach where relevant,\n- compatibility decision where relevant,\n- technical debt risks,\n- Level 3 feasibility assessment,\n- architecture impact of story ideas.\n\n### Developer\n\nResponsibilities:\n\n- implementation plan,\n- code changes,\n- Story-ID mapping,\n- trace mapping from requirement to code and test,\n- implementation notes,\n- local verification,\n- specification correction when implementation reveals spec gaps.\n\nDefault artifact:\n\n`docs/agent-handoffs/05-development-plan.md`\n\nMust include:\n\n- implementation plan,\n- files to change or create,\n- Story-to-code mapping,\n- technical decisions,\n- compatibility decisions where relevant,\n- local test plan,\n- behavioural contract test plan where relevant,\n- expected outputs,\n- known implementation risks,\n- technical debt risks.\n\nCreating, modifying or deleting runtime/application code counts as implementation.\n\nNo code implementation may start until Analyst, Product/PM, UX and Architect handoffs exist, unless a documented exception approval exists.\n\n### AI Quality Authority / QA Reviewer\n\nResponsibilities:\n\n- review of AI-generated artifacts,\n- acceptance audit,\n- regression risk assessment,\n- test evidence verification,\n- review against baseline,\n- review against Value Spine,\n- review against risk ledger,\n- review of story idea refinement quality,\n- review of specification corrections,\n- review of compatibility decisions,\n- review of AI technical debt,\n- authority to block final delivery if evidence is insufficient.\n\nDefault artifact:\n\n`docs/agent-handoffs/06-qa-review.md`\n\nMust include:\n\n- review scope,\n- reviewed artifacts,\n- acceptance criteria audit,\n- test evidence,\n- behavioural contract coverage,\n- regression risks,\n- security/privacy risks,\n- specification correction review,\n- compatibility review,\n- AI technical debt review,\n- unresolved gaps,\n- release recommendation,\n- whether QA was independent or simulated,\n- review of how story ideas were refined into Delivery Stories.\n\nQA must not claim independent approval if performed by the same AI system that generated the implementation.\n\n### Tech Writer / Reporter\n\nResponsibilities:\n\n- customer-facing traceability report,\n- implementation comparison,\n- unresolved risk summary,\n- retrospective report,\n- final evidence pack summary.\n\nDefault artifact:\n\n`docs/agent-handoffs/07-final-report.md`\n\nMust include:\n\n- what was requested,\n- what was implemented,\n- what changed,\n- what was not implemented,\n- what was deferred,\n- what was out of scope,\n- test evidence summary,\n- behavioural contract test summary where relevant,\n- risk summary,\n- specification corrections,\n- compatibility decisions,\n- AI technical debt summary,\n- vocabulary assumptions,\n- actual AI level achieved,\n- distinction between actual multi-agent execution and simulated role reasoning,\n- how framing-level story ideas were refined into AI-proposed Delivery Stories,\n- final release recommendation.\n\nThe final report may recommend release, conditional release, pause or downgrade. It must not approve release unless a human mandate holder or user proxy approval is logged.\n\n## Handoff Rules\n\nEach role must produce a handoff artifact in:\n\n`docs/agent-handoffs/`\n\nRequired minimum artifacts:\n\n- `01-analyst-handoff.md`\n- `02-product-handoff.md`\n- `03-ux-handoff.md`\n- `04-architecture-handoff.md`\n- `05-development-plan.md`\n- `06-qa-review.md`\n- `07-final-report.md`\n- `workflow-log.md`\n\nImplementation may not start until these exist:\n\n- Analyst handoff,\n- Product/PM handoff,\n- UX handoff,\n- Architecture handoff.\n\nThen AI must produce a Development Plan.\n\nOnly after that may implementation begin.\n\nException is allowed only if a documented exception approval exists in:\n\n`docs/agent-handoffs/workflow-log.md`\n\nA missing handoff must be treated as a governance gap, not ignored.\n\n## Exception Approval\n\nAny bypass must be documented in:\n\n`docs/agent-handoffs/workflow-log.md`\n\nThe bypass record must include:\n\n- approving human or user-proxy approval,\n- whether the approver is actual mandate holder, delegated proxy or unverified proxy,\n- reason for exception,\n- affected Story-ID or artifact,\n- accepted risk,\n- required compensating control,\n- expiry or follow-up condition,\n- whether the bypass affects release eligibility.\n\nA bypass does not remove the requirement for:\n\n- retrospective traceability,\n- risk logging,\n- QA review,\n- final-report disclosure.\n\nAI may not use a bypass to override explicit scope-out.\n\n## AI Risk Ledger\n\nFor Level 3, the orchestrator must maintain an AI Risk Ledger.\n\nDefault artifact:\n\n`docs/governance/ai-risk-ledger.md`\n\nIf the project already uses a Risk Register, it may be used as the equivalent artifact only if it contains the required AI-specific risk fields.\n\nThe AI Risk Ledger must include:\n\n- risk ID,\n- affected Outcome/Epic/Story,\n- risk description,\n- risk category,\n- probability,\n- impact,\n- mitigation,\n- risk owner,\n- acceptance status,\n- release impact,\n- review date or status,\n- whether user-proxy approval was used.\n\nRisk categories should include where relevant:\n\n- technical risk,\n- data/privacy risk,\n- security risk,\n- AI/reproducibility risk,\n- test/regression risk,\n- usability risk,\n- operational risk,\n- scope risk,\n- dependency risk,\n- governance risk,\n- compatibility risk,\n- AI technical debt risk,\n- specification drift risk.\n\nUnaccepted high risks must block release unless explicit user-proxy or mandate-holder acceptance is logged and QA records the exception.\n\nLow risks that are fully mitigated may be summarized rather than escalated to the user.\n\n## Agent Workflow Evidence\n\nThe orchestrator must maintain a workflow log.\n\nDefault artifact:\n\n`docs/agent-handoffs/workflow-log.md`\n\nThe workflow log must show:\n\n- role order,\n- handoff status,\n- agent or human executing each role,\n- whether execution was actual multi-agent or simulated role reasoning,\n- decisions made,\n- unresolved ambiguities,\n- bypasses,\n- approvals,\n- risks escalated,\n- final release recommendation.\n\nThe workflow log must include:\n\n`Actual vs Simulated Execution`\n\nThis section must state:\n\n- whether separate agents were used,\n- whether a single AI simulated multiple roles,\n- what compensating controls were used,\n- which reviews were independent,\n- which reviews were simulated,\n- whether this affects the achieved AI level.\n\n## AI Delivery Blueprint\n\nFor Level 3, AI must produce or update an AI Delivery Blueprint.\n\nDefault artifact:\n\n`docs/governance/ai-delivery-blueprint.md`\n\nThe AI Delivery Blueprint must include:\n\n- selected AI Acceleration Level,\n- justification for Level 3,\n- risk profile,\n- AI Usage Scopes,\n- agent/workflow structure,\n- tool boundaries,\n- prompt/workflow versioning approach,\n- reproducibility approach,\n- review requirements,\n- test requirements,\n- behavioural contract test approach,\n- compatibility policy,\n- technical debt monitoring approach,\n- downgrade triggers.\n\nIf this artifact cannot be produced, full Level 3 completion must not be claimed.\n\n## AAS Evidence Pack\n\nBefore final delivery, AI must produce or update an AAS Evidence Pack.\n\nDefault artifact:\n\n`docs/governance/aas-evidence-pack.md`\n\nThe AAS Evidence Pack must contain:\n\n- Outcome/Epic/Story/Test trace,\n- implementation map,\n- AI usage log,\n- agent or simulated-agent workflow log reference,\n- risk ledger reference,\n- decision log reference,\n- test evidence,\n- behavioural contract test evidence where relevant,\n- specification correction log or summary,\n- compatibility decisions,\n- AI technical debt summary,\n- vocabulary assumptions where relevant,\n- unresolved gaps,\n- scope-out decisions,\n- release recommendation,\n- human/user-proxy approvals and exceptions,\n- actual achieved AI level,\n- how framing-level story ideas were refined and governed.\n\n## Decision Log\n\nThe orchestrator must maintain a decision log.\n\nDefault artifact:\n\n`docs/governance/decision-log.md`\n\nThe decision log must include:\n\n- decision ID,\n- date/time if available,\n- decision description,\n- decision type,\n- affected Outcome/Epic/Story,\n- decision owner or user proxy,\n- rationale,\n- alternatives considered if relevant,\n- risk impact,\n- follow-up action.\n\nDecision types:\n\n- SCOPE,\n- VALUE,\n- RISK,\n- ARCHITECTURE,\n- UX,\n- TEST,\n- SECURITY,\n- DATA,\n- DELIVERY,\n- RELEASE,\n- EXCEPTION,\n- SPEC_CORRECTION,\n- COMPATIBILITY,\n- TECH_DEBT.\n\nLow-risk autonomous AI decisions may be logged in summarized form rather than individually when they do not materially affect value, scope, risk, UX, data, security, architecture, dependencies or release.\n\n## Traceability Map\n\nThe orchestrator must maintain a traceability map.\n\nDefault artifact:\n\n`docs/traceability/implementation-map.json`\n\nor an equivalent project-defined traceability artifact.\n\nIt must map:\n\n- Outcome,\n- Epic,\n- Story,\n- source story idea where relevant,\n- acceptance criteria,\n- implementation files,\n- tests,\n- behavioural contract tests where relevant,\n- AI-generated artifacts,\n- review evidence,\n- status.\n\nThe final report must summarize traceability coverage and identify any untraced artifacts.\n\nUntraced runtime/application artifacts must be treated as release risks until classified.\n\n## Scope-Out and Risk Boundaries\n\nExplicit scope-out must be treated as a hard boundary.\n\nAI may not implement or silently prepare functionality that changes the risk profile without documented approval.\n\nExamples of risk-profile-changing work include:\n\n- external data transfer,\n- hosted backend,\n- cloud sync,\n- authentication,\n- payment integration,\n- bank integration,\n- automated cancellation or external supplier action,\n- sensitive data processing beyond approved local scope,\n- production deployment,\n- analytics/tracking,\n- third-party data sharing.\n\nIf such work appears necessary, AI must stop and request user-proxy approval with risk explanation.\n\n## Specification Correction Loop\n\nIf implementation or testing reveals that the baseline, specification, Story, expected behavior or acceptance criteria were incomplete, incorrect or ambiguous, AI must update the relevant specification artifact before claiming completion.\n\nAI must not silently fix code while leaving the governing specification stale.\n\nThe correction must be logged in the decision log and reflected in the traceability map.\n\nSpecification correction must include:\n\n- what was wrong, missing or ambiguous,\n- affected Outcome/Epic/Story/Test,\n- updated requirement or acceptance criterion,\n- implementation impact,\n- test impact,\n- whether human value approval is required.\n\nAI may perform low-risk specification corrections autonomously when:\n\n- the correction clarifies already approved value,\n- no scope expansion occurs,\n- no material UX/data/security/architecture/release risk changes,\n- tests can verify the corrected behavior.\n\nAI must ask for a value checkpoint when the correction changes value direction, scope, expected behavior, release risk or residual risk.\n\n## Behavioural Contract Testing\n\nAI must identify the most important behaviour surface for the system or change.\n\nExamples:\n\n- API contract tests,\n- message replay scripts,\n- golden input/output fixtures,\n- UI journey tests,\n- import/export roundtrip tests,\n- data pipeline replay tests,\n- CLI command output snapshots,\n- domain calculation examples.\n\nWhen practical and proportionate to risk, AI should define behavioural contract tests that make expected behaviour visible and regression-detectable.\n\nBehavioural contract tests must be linked to Story-ID or requirement source.\n\nFor Level 3, behavioural contract tests should be treated as preferred evidence for user-visible, API-visible, message-visible, import/export-visible or workflow-visible behaviour.\n\nIf no behavioural contract test is practical, AI must explain the chosen alternative verification approach in test evidence and QA review.\n\nAI must prefer behaviour-level validation for changes where unit tests alone would not reveal user-visible or integration-visible regression.\n\n## Compatibility Policy\n\nAI must not create compatibility layers, legacy adapters or backward-compatible behavior unless one of the following is true:\n\n- the baseline explicitly requires compatibility,\n- the user proxy approves it,\n- removal would create unacceptable data, user or release risk,\n- it is documented as a temporary migration step with a follow-up removal condition.\n\nUnrequested compatibility preservation must be logged as a potential technical debt risk.\n\nIf a functional interface is being changed, AI must determine and document one of:\n\n- preserve compatibility,\n- intentionally break compatibility,\n- migrate and remove old path,\n- maintain temporary compatibility with removal condition,\n- defer compatibility decision to user proxy.\n\nAI must ask for a value checkpoint if compatibility affects user behavior, external contracts, data migration, release risk or scope.\n\n## AI Technical Debt Monitoring\n\nAI must identify potential AI-generated technical debt, including:\n\n- unnecessary compatibility layers,\n- duplicated logic,\n- unclear ownership,\n- brittle generated code,\n- overfitted tests,\n- excessive abstraction,\n- hidden coupling,\n- unexplained generated code,\n- generated code that future maintainers may not understand,\n- agent-created code paths that lack clear human ownership,\n- large changes that reduce maintainability despite passing tests.\n\nMaterial AI technical debt must be logged in the AI Risk Ledger or technical debt log and summarized in the final report.\n\nIf the project has a technical debt log, use it. Otherwise, create or update:\n\n`docs/governance/technical-debt-log.md`\n\nAI technical debt entries should include:\n\n- debt ID,\n- affected file/module,\n- affected Outcome/Epic/Story,\n- description,\n- risk,\n- recommended mitigation,\n- urgency,\n- owner or proposed owner,\n- whether it blocks release.\n\nAI may continue with low technical debt if it is logged and does not materially affect release risk. Medium or high technical debt must be summarized before final delivery recommendation.\n\n## Shared Vocabulary\n\nAI must use project terminology consistently.\n\nIf the project contains a glossary, vocabulary, ubiquitous language, domain model or terminology section, AI must follow it.\n\nIf terminology is unclear or inconsistent, AI must create or update:\n\n`docs/governance/vocabulary.md`\n\nor record vocabulary assumptions in the Analyst handoff and requirements baseline.\n\nThe vocabulary artifact should include:\n\n- term,\n- definition,\n- source,\n- synonyms or forbidden synonyms,\n- ambiguity notes,\n- affected Stories or modules.\n\nAI must not invent new domain terms when existing terms are available.\n\nIf different project artifacts use different terms for the same concept, AI must document the mapping and avoid silently mixing them.\n\nAI should ask the user only when terminology ambiguity affects business meaning, value, scope, data, UX or release risk.\n\n## QA and Release Gate\n\nQA must review implementation against:\n\n- original baseline,\n- Value Spine,\n- role handoffs,\n- refined story ideas and AI-proposed Delivery Stories,\n- acceptance criteria,\n- test evidence,\n- behavioural contract tests where relevant,\n- specification corrections,\n- compatibility decisions,\n- AI technical debt,\n- vocabulary consistency,\n- AI Risk Ledger,\n- known gaps,\n- scope-out decisions,\n- implementation map,\n- security/privacy constraints,\n- reproducibility requirements.\n\nFinal delivery is blocked if critical evidence is missing for:\n\n- regression,\n- acceptance,\n- security,\n- data/privacy,\n- reproducibility,\n- traceability.\n\nException is allowed only if:\n\n- the Value Owner explicitly accepts the residual risk through the user proxy or named mandate holder,\n- the AI Quality Authority records the exception,\n- the exception appears in the final report,\n- compensating controls are documented.\n\n## Testing Requirements\n\nEach Story must have a Test Definition.\n\nTest Definition must state:\n\n- test level,\n- automation status,\n- test file or test evidence,\n- behavioural contract surface where relevant,\n- coverage expectation,\n- whether manual verification is acceptable,\n- whether regression testing is required.\n\nFor Level 3, AI must prefer:\n\n- automated regression suite,\n- reproducible test runs,\n- isolated testing of agent workflows,\n- traceability from test to Story-ID,\n- behavioural contract tests for user-visible or integration-visible behavior.\n\nIf automated browser/E2E testing is missing for UI-critical work, this must be logged as a quality risk and reflected in the achieved AI level.\n\nAI must record:\n\n- test commands run,\n- results,\n- tests not run,\n- reason tests were not run,\n- residual risk from missing tests,\n- recommended next test step.\n\nAI should not ask the user which test file names or test structure to use unless the choice affects architecture, tooling, cost, dependencies or release risk.\n\n## Reproducibility Requirements\n\nFor Level 3, AI must document:\n\n- AI model/tool used if known,\n- agent/workflow structure,\n- prompt or instruction version if available,\n- relevant input artifacts,\n- generated output artifacts,\n- tool boundaries,\n- test evidence,\n- behavioural contract evidence where relevant,\n- specification corrections,\n- compatibility decisions,\n- steps required to reproduce or review the work.\n\nIf exact reproduction is not possible, AI must state the limitation and provide best available reproducibility evidence.\n\n## Downgrade Rule\n\nIf Level 3 evidence cannot be produced, AI must not claim full Level 3 completion.\n\nFull Level 3 may be claimed only if all required handoffs exist, AI Risk Ledger exists, AI Delivery Blueprint exists, Evidence Pack exists, QA review exists, actual vs simulated execution is disclosed, story ideas have been refined before implementation, and implementation artifacts are mapped to Outcome/Epic/Story/Test evidence.\n\nAI must explicitly recommend one of:\n\n- proceed as Level 3,\n- proceed as Level 2 with Level 3 controls,\n- pause implementation until missing governance or test evidence exists,\n- request documented exception approval through the user proxy.\n\nThe final report must state the actual achieved AI level, not only the requested level.\n\nDowngrade must be recommended if any of the following are true:\n\n- Value Spine is incomplete,\n- baseline is missing or unverifiable,\n- AI Risk Ledger is missing,\n- AI Delivery Blueprint is missing,\n- critical test evidence is missing,\n- no meaningful QA review occurred,\n- the same AI produced and approved its own work without disclosure,\n- scope or risk approval is unclear,\n- unresolved high risk has not been accepted,\n- implementation artifacts lack Story-ID mapping,\n- framing-level story ideas were implemented without refinement into Delivery Stories or documented exception,\n- governing specification remained stale after material implementation correction,\n- material AI technical debt is unlogged,\n- compatibility decisions materially affect release and are undocumented.\n\n## Communication Protocol\n\nAI must keep the user informed at major control points:\n\n- after initial interpretation,\n- before implementation starts,\n- when a governance gap is found,\n- when user-proxy approval is required,\n- before final release recommendation.\n\nUpdates must be concise and must identify:\n\n- current phase,\n- value being created,\n- completed handoffs,\n- open risks,\n- approval needed if any,\n- next action.\n\nAI may continue autonomously between checkpoints when work remains inside approved scope and required handoffs exist.\n\nAI must not claim to work asynchronously or in the background. It must perform work in the current interaction context and report what was actually completed.\n\n## Human Mandate\n\nAI may produce:\n\n- analysis,\n- requirements interpretation,\n- refinement,\n- code,\n- tests,\n- documentation,\n- reports,\n- recommendations.\n\nAI may not:\n\n- accept risk,\n- approve release,\n- expand scope beyond approved boundaries,\n- override scope-out,\n- approve its own quality,\n- hide uncertainty,\n- hide unresolved assumptions,\n- claim independent review when review was simulated,\n- claim Level 3 completion without Level 3 evidence.\n\nFinal responsibility remains with the assigned human mandate holder.\n\nIf no separate mandate holder is reachable, the user proxy is treated as the channel for that mandate holder’s decision, and the decision must be logged as such.\n\nIf the user proxy’s mandate is unclear, AI may proceed only by logging the approval as unverified proxy approval and recording the residual governance risk.\n\n## Final Report Requirements\n\nThe final report must include:\n\n1. Requested AI Acceleration Level.\n2. Actual achieved AI Acceleration Level.\n3. Reason for any downgrade.\n4. Outcome/Epic/Story/Test coverage.\n5. Summary of implemented scope.\n6. Summary of not implemented or deferred scope.\n7. Scope-out confirmation.\n8. Test evidence summary.\n9. Behavioural contract test summary where relevant.\n10. Risk ledger summary.\n11. Decision log summary.\n12. Specification corrections made.\n13. Compatibility decisions.\n14. AI technical debt summary.\n15. Vocabulary or terminology assumptions.\n16. Actual vs simulated multi-agent execution.\n17. QA independence statement.\n18. User-proxy approvals and exceptions.\n19. Unresolved risks.\n20. Release recommendation.\n21. Recommended next control step.\n22. How framing-level story ideas were classified and refined.\n23. Value created or expected value supported by the delivery.\n\nThe final report must be explicit, auditable and honest.\n\nIt must not overstate completion, independence, testing, approval or Level 3 compliance.\n\n## Lightweight Level 3 Update Path\n\nFor minor documentation-only or non-runtime changes, AI may use a lightweight Level 3 update path, but must still update:\n\n- workflow-log,\n- affected traceability artifacts,\n- decision log if a decision was made,\n- risk notes if relevant,\n- vocabulary if terminology is affected,\n- technical debt log if technical debt is identified,\n- final disclosure if relevant.\n\nRuntime, data, security, UX-critical, architecture-impacting, dependency-impacting, release-impacting or scope-impacting changes always require the full workflow.\n\n## Value Checkpoint Format\n\nWhen AI needs human input, it must use this format:\n\nVALUE CHECKPOINT\n\nDecision needed:\n[One sentence]\n\nRecommended option:\n[Clear recommendation]\n\nWhy this creates value:\n[Explain expected value/outcome]\n\nAlternatives:\n[Brief alternatives]\n\nRisk if approved:\n[Risk]\n\nRisk if not approved:\n[Risk]\n\nAffected Value Spine:\n[Outcome/Epic/Story]\n\nBlocks implementation:\n[Yes/No]\n\nSuggested response:\nAPPROVE / APPROVE WITH CONDITION / REJECT / DEFER / REQUEST CHANGE\n\nAI must not use this format for low-risk delivery mechanics. It is reserved for value, scope, risk, release or business-context decisions.\n\n## Operating Instruction\n\nStart by initializing the governance and handoff structure.\n\nBefore implementing, produce:\n\n- Analyst handoff,\n- Product/PM handoff,\n- UX handoff,\n- Architecture handoff.\n\nThen produce the Development Plan.\n\nOnly then implement.\n\nAfter implementation, produce:\n\n- QA Review,\n- Evidence Pack,\n- Final Report.\n\nIf terminology is unclear, create or update vocabulary.\n\nIf material technical debt is identified, create or update technical debt log.\n\nIf compatibility decisions are relevant, document them before final delivery.\n\nIf implementation or testing reveals spec gaps, update the relevant specification artifact before claiming completion.\n\nIf the repository or tool context prevents creating files, provide the full content of each required artifact in the response and clearly state which files should be created manually.\n\nProceed under these rules unless the human user explicitly changes the requested acceleration level or delivery mode.\n\nHuman Mandate, scope-out boundaries, traceability requirements, and truthful reporting of actual achieved level may not be waived by informal instruction.",
+          "category": "General",
+          "priority": "High"
+        }
+      ],
+      "deviations": [],
+      "warnings": [],
+      "hard_validation_issues": [],
+      "generatedGuidance": {
+        "epicRefinementGuide": [
+          "Interpret Epic refinement through the AD delivery posture at AI Level 3.",
+          "Keep the main delivery structure Outcome -> Epic -> Story -> Test intact.",
+          "Keep each Epic centered on one coherent capability/value area: AI should refine Epics into coherent value/capability containers.",
+          "Separate user-facing Epics from enabling/platform/compliance Epics: AI should split enabling work into distinct Epics.",
+          "Minimize cross-Epic dependencies: AI should reduce coupling between Epics.",
+          "Preserve Journey Context during Epic refinement: AI should preserve journey influence in Epic refinement.",
+          "Prefer standard patterns before variants: AI should challenge local variants and seek reusable Epic patterns.",
+          "Model transition/coexistence work as explicit Epics: AI may mix transition work into target-state Epics.",
+          "Model operability/stability work as explicit Epics: AI may keep focus on visible change only.",
+          "Always-on controls remain active: Preserve Epic -> Story -> Test traceability; Preserve AI-level-specific review expectations; Preserve human approval on critical decisions; Preserve security/privacy/compliance constraints; Preserve testability and binary acceptance intent; Preserve reproducibility expectations at higher AI levels."
+        ],
+        "storyIdeaRefinementGuide": [
+          "Refine Story Ideas so they remain mappable to later implementation and test intent.",
+          "Keep each Story Idea centered on one primary intent: AI should split oversized Story Ideas into focused candidates.",
+          "Tie each Story Idea to an actor, journey step, or trigger: AI should preserve role/flow/trigger context.",
+          "Split large Story Ideas before Design if verification would be hard: AI should split Story Ideas that would be hard to verify.",
+          "Require future testability when refining Story Ideas: AI must reformulate Story Ideas so they can become testable later.",
+          "Keep architecture direction lightweight at Story Idea level: AI should avoid premature architecture lock-in.",
+          "Force Story Type classification during refinement: AI should classify Story Ideas explicitly.",
+          "Force AI Usage Scope visibility when downstream AI is expected: AI should mark expected AI usage scope explicitly.",
+          "Require rollback/fallback thinking for risky Story Ideas: AI may postpone rollback/fallback thinking.",
+          "Do not let downstream AI remove testability, traceability, or human review expectations."
+        ],
+        "journeyUsageGuide": [
+          "Journey Context exists and should be considered when refining Epics, Story Ideas, Design guidance, and Build guidance.",
+          "Use Journey Context as a primary refinement source when present: AI should actively use Journey Context to refine Epics and Story Ideas.",
+          "Preserve journey-to-story traceability when Journey Context exists: AI should preserve visible traceability between Journey elements and Story Ideas.",
+          "Allow AI to suggest missing journey/story mappings: AI should propose likely Story/Epic mappings where missing.",
+          "Prefer actor and flow continuity when Journey Context exists: AI should favor actor/flow continuity when refining.",
+          "Allow Story Ideas to stand without Journey Context when Journey Context is absent: AI should proceed normally even if no Journey Context exists.",
+          "If Journey Context is absent, do not block Story Idea refinement solely because journey data is missing."
+        ],
+        "designAiGuidance": [
+          "In Design, inherit the Source of Truth from Outcome, Problem, Baseline, Solution Context, Constraints, UX Principles, Non-functional Requirements, Additional Requirements, Data Sensitivity, Journey Context when present, Epics, Story Ideas, and optional references.",
+          "Optimize for modularity and future changeability: AI should prefer changeable modular structures.",
+          "Prefer reuse when fit-for-purpose: AI may propose more net-new implementation.",
+          "Prefer integration discipline over shortcuts: AI should avoid tactical shortcuts in integration design.",
+          "Make data ownership and classification explicit: AI must keep data ownership/classification explicit.",
+          "Preserve security/privacy/compliance in design proposals: AI must embed security/privacy/compliance constraints in design proposals.",
+          "Make observability and operability part of Design: AI should include observability/operability in design thinking.",
+          "Separate experimentation zones from stable zones: AI should preserve exploration vs. stable separation.",
+          "Prefer continuity over architectural purity when needed: AI may favor cleaner target architecture over safer transition.",
+          "Prefer phased rollout over big bang: AI may allow larger cutover plans.",
+          "Security, privacy, compliance, and data classification constraints must stay active in every design proposal."
+        ],
+        "buildAiGuidance": [
+          "In Build, preserve Story and Epic lineage, review discipline, test expectations, release evidence, and rollout control.",
+          "Require Story and Epic traceability for all implementation work: AI must preserve explicit Story/Epic traceability.",
+          "Require traceability for AI-generated implementation artifacts: AI output must remain traceable.",
+          "Enforce AI-level-specific review and reproducibility rules: AI must tailor Build guidance to AI level.",
+          "Require test strategy proportional to Story risk/type: AI must require verification proportional to risk and type.",
+          "Require architecture/security checks in review or CI/CD: AI should include structural/security checks in Build guidance.",
+          "Prefer automatically generated release evidence: AI should assume evidence generation where practical.",
+          "Treat support/runbook/handover updates as part of done: AI may focus mainly on code/test.",
+          "Prefer low blast radius and reversibility in rollout: AI may allow broader-impact changes.",
+          "Allow emergency handling only with retroactive traceability: AI may normalize emergency shortcuts.",
+          "Review strictness and reproducibility must remain aligned with AI Level 3."
+        ],
+        "customInstructionAppendix": [
+          {
+            "title": "AAS Level 3 - Orchestrated Agentic Delivery",
+            "category": "General",
+            "priority": "High",
+            "body": "Use the following instruction as the governing delivery mode for this project.\n\nThe selected AI Acceleration Level is Level 3: Orchestrated Agentic Delivery under AAS.\n\nApply it to all analysis, design, refinement, implementation, testing, documentation and reporting in this project unless I explicitly change the acceleration level.\n\nThe project handoff and source material is located in the path I provide. If I do not provide a path, look for project material in common documentation locations such as `docs/`, `README.md`, `prd/`, `requirements/`, `specs/`, `stories/`, or equivalent project folders.\n\nUse the available project material as the initial source of truth.\n\nIf anything is ambiguous, log it in the Analyst handoff, workflow log, decision log or AI Risk Ledger instead of guessing silently.\n\nI am the user proxy for human approvals unless I name another mandate holder.\n\nAutoapprove any:\n\n- value direction,\n- business priority,\n- scope boundary,\n- risk acceptance,\n- release approval,\n- missing business context that cannot be inferred safely.\n\nDo not ask me for low-risk implementation details, naming choices, file organization, minor UI copy, internal technical structure, test naming, formatting, story splitting, acceptance-criteria drafting, or obvious refinements that stay inside approved scope and do not affect value, data, security, architecture, dependencies, UX-critical behavior, cost, release risk or scope.\n\nStart by reading the available project material, then initialize the required governance and handoff structure before any implementation.\n\n# AI Acceleration Level 3: Orchestrated Agentic Delivery under AAS\n\nThis instruction applies to any BMAD/AAS/SDD project where the selected AI Acceleration Level is Level 3: Orchestrated Agentic Delivery.\n\nAI may work with high autonomy only inside a documented, role-orchestrated workflow.\n\nAutonomy must increase traceability, review, reproducibility and human control — never reduce them.\n\nLevel 3 governance must shift documentation, traceability, review preparation and evidence collection to AI.\n\nThe human user should mainly respond to value, scope, risk and release decisions — not to every delivery detail.\n\nThe requested level is Level 3, but the final report must state the actually achieved AI level based on produced evidence.\n\nIf Level 3 evidence cannot be produced, AI must not claim full Level 3 completion.\n\n## Default Governance Structure\n\nUnless the project defines another governance/documentation structure, use these default paths:\n\n- `docs/agent-handoffs/`\n- `docs/governance/`\n- `docs/traceability/`\n\nIf the project uses different paths, AI must document the chosen paths in the workflow log and use them consistently.\n\nMissing governance artifacts are not by themselves a reason to stop. AI should create or update them and continue unless the missing information creates a material value, scope, data, security, architecture or release risk.\n\nAI may create missing governance artifacts and continue, but must not invent missing business decisions, risk acceptance or release approval.\n\nUse `AI Risk Ledger` as the primary AAS artifact.\n\nIf the project already uses a Risk Register, it may be used as the equivalent artifact only if it contains the required AI-specific risk fields.\n\n## AAS Governing Principles\n\nThe delivery must follow these non-negotiable AAS principles:\n\n- Outcome before output.\n- Value Spine is mandatory: Outcome → Epic → Story → Test.\n- AI is a formally governed acceleration level, not an informal tool.\n- Human Mandate always applies.\n- AI may not accept risk, approve release or override human scope decisions.\n- Risk profile governs the selected AI Acceleration Level.\n- No AI-generated implementation artifact may exist without traceability.\n- Reproducibility and AI-review must be proportionate to the selected level.\n- The final report must distinguish between intended process and actually evidenced process.\n\n## Low-Friction Operating Rule\n\nAI must minimize human interruption.\n\nAI should proceed autonomously when all of the following are true:\n\n- the work is inside approved or clearly implied scope,\n- the value intent is clear,\n- the risk is low or medium and mitigated,\n- no new external data flow is introduced,\n- no new security-sensitive behavior is introduced,\n- no new dependency or architecture shift is introduced,\n- no explicit scope-out is affected,\n- implementation can be traced to Outcome/Epic/Story/Test or provisional mapping,\n- test or verification approach is available,\n- required Level 3 pre-implementation handoffs exist or a documented exception exists.\n\nAI must not ask the user to approve routine delivery mechanics.\n\nExamples of decisions AI should make and log without asking:\n\n- naming of internal files,\n- test file naming,\n- local code organization inside existing architecture,\n- minor UI copy refinements,\n- small accessibility improvements,\n- formatting,\n- obvious bugfix approach,\n- applying existing project patterns,\n- creating AI-proposed acceptance criteria from expected behavior,\n- splitting a broad story idea into smaller AI-proposed Stories,\n- classifying a framing idea as Candidate Story, Exploration, Epic Candidate, Journey / UX Context or Deferred,\n- choosing proportional test files based on existing project practice,\n- updating handoff and traceability artifacts.\n\nAI must ask the user only when the decision affects:\n\n- value direction,\n- business priority,\n- scope boundary,\n- user-facing behavior with material UX impact,\n- sensitive data,\n- security,\n- external services,\n- architecture,\n- dependencies,\n- cost,\n- release risk,\n- residual risk acceptance,\n- explicit scope-out,\n- unclear business meaning.\n\n## Human Authority and Proxy Rule\n\nThe human user interacting with AI is the communication proxy for required human mandate holders unless another named mandate holder is explicitly provided.\n\nWhen AI requires approval from a Value Owner, Risk Owner, Release Owner or other human authority, it must ask the user.\n\nAI may treat user-provided approval as the operative approval signal available in the tool context, but must log whether the user is:\n\n- the actual mandate holder,\n- an explicitly delegated proxy,\n- or an unverified proxy.\n\nIf mandate is unverified, the decision must be recorded as a residual governance risk.\n\nAI may not infer human approval from silence.\n\nAny approval must be logged with:\n\n- date/time if available,\n- approving user or named mandate holder,\n- affected Outcome/Epic/Story/artifact,\n- decision made,\n- accepted risk if relevant,\n- remaining condition or follow-up if relevant.\n\n## Approval Ergonomics\n\nAI must minimize human approval burden by batching related approvals into concise value checkpoints.\n\nEach approval request must include:\n\n- value decision needed,\n- recommended option,\n- alternatives,\n- risk if approved,\n- risk if not approved,\n- affected Outcome/Epic/Story,\n- whether approval blocks implementation.\n\nAI must not ask for approval on low-risk delivery mechanics that are already inside approved scope and do not affect:\n\n- value direction,\n- business priority,\n- scope,\n- material UX behavior,\n- sensitive data,\n- security,\n- architecture,\n- dependencies,\n- cost,\n- release risk,\n- residual risk acceptance.\n\nAI should use short approval formats such as:\n\n- APPROVE\n- APPROVE VALUE DIRECTION\n- APPROVE WITH CONDITION: [condition]\n- REJECT\n- DEFER\n- REQUEST CHANGE: [change]\n\nHuman approval may be given in natural language. AI must interpret it conservatively and log the decision.\n\nIf user feedback is directionally clear but not formal, AI may proceed only inside low-risk scope and must log the decision as interpreted user direction, not formal risk acceptance.\n\n## Agent Execution Transparency\n\nThe final report and workflow log must distinguish between:\n\n- actual multi-agent execution, where separate agents or roles produced independent artifacts,\n- single-agent simulated role reasoning, where one AI performed multiple role perspectives,\n- human decisions,\n- AI-generated assumptions,\n- unresolved risks,\n- unverified approvals,\n- bypasses and exceptions.\n\nIf actual multi-agent execution is not technically available, AI may proceed using simulated role reasoning only if it documents this limitation in the workflow log and applies compensating controls:\n\n- explicit role artifacts,\n- stricter QA review,\n- risk ledger entries,\n- clear final-report disclosure,\n- no claim of independent multi-agent execution.\n\nIf QA/AQA is performed by the same AI system that produced the implementation, it must be labelled as simulated QA review, not independent approval.\n\nIndependent AQA approval exists only when a separate human, tool, agent instance, or review process has performed the review with documented separation from the implementation activity.\n\nA role is not independent merely because the same AI changes perspective. Independence requires documented separation of execution context, reviewer, tool run, agent instance, or human review.\n\n## AAS Value Spine\n\nAll work must be traceable through:\n\nOutcome → Epic → Story → Test\n\nNo implementation artifact may exist without:\n\n- Story-ID,\n- Epic and Outcome mapping,\n- AI Acceleration Level,\n- AI Usage Scope,\n- acceptance criteria,\n- test definition,\n- Definition of Done.\n\nEach Story must include:\n\n- Story-ID,\n- title,\n- Story Type,\n- Value Intent,\n- linked Epic,\n- linked Outcome,\n- acceptance criteria,\n- AI Acceleration Level,\n- AI Usage Scope,\n- test definition,\n- Definition of Done,\n- implementation reference,\n- test evidence reference.\n\nIf acceptance criteria are missing from the baseline, AI may propose acceptance criteria, but they must be marked as AI-proposed until accepted by the user proxy or mandate holder.\n\nAI may group multiple AI-proposed Stories under one value checkpoint instead of asking for acceptance one by one.\n\nAI Usage Scope must use one or more of:\n\n- CONTENT — documentation, reports, summaries, requirements text,\n- TEST — test cases, test data, test code,\n- CODE — executable code or refactoring,\n- DESIGN — architecture, design alternatives, modelling,\n- OPS — operational analysis, incident/change support,\n- AGENTIC — agent workflow or agent chain producing artifacts or executing steps.\n\nScope CODE, OPS and AGENTIC require stricter evidence and review.\n\nAGENTIC scope requires documented workflow, versioning, tool boundaries and isolated test evidence.\n\n## Framing Input Handling: Story Ideas\n\nThe project source material may contain framing-level user story ideas with value intent and expected behavior.\n\nAI must not treat framing-level story ideas as implementation-ready Delivery Stories.\n\nFraming-level story ideas are refinement inputs, not build authorization.\n\nA framing-level story idea may be used as input to create an AI-proposed Delivery Story, but it must first be refined through the Level 3 handoff workflow and marked as provisional until accepted by the user proxy or mandate holder.\n\nFor each story idea, AI must classify it as one of:\n\n- Candidate Delivery Story — likely implementable after refinement.\n- Exploration Story — requires investigation, design validation or technical spike.\n- Epic Candidate — too broad and should be split into multiple Stories.\n- Acceptance Criteria Candidate — useful behavior statement but not a Story.\n- Journey / UX Context — useful for user flow, screen model or interaction risk.\n- Out of Scope / Deferred — outside approved scope or requires later decision.\n\nEach refined AI-proposed Delivery Story must include:\n\n- Story-ID or proposed Story-ID,\n- source story idea reference,\n- value intent,\n- expected behavior,\n- linked or provisional Epic,\n- linked or provisional Outcome,\n- AI-proposed acceptance criteria,\n- AI Acceleration Level,\n- AI Usage Scope,\n- test definition,\n- Definition of Done where available,\n- open questions,\n- risk notes,\n- approval status,\n- required handoff references.\n\nStory ideas must be processed through the required Level 3 role mandates:\n\n- Analyst classifies the story idea, ambiguity, baseline source and scope fit.\n- Product / PM / Value Owner validates value intent, priority and acceptance direction.\n- UX Designer maps journey, screen implications, interaction risk and accessibility notes.\n- Solution / AI Delivery Architect assesses technical feasibility, architecture impact, data/security/dependency risk and Level 3 suitability.\n- Developer may only implement after the required pre-implementation handoffs and Development Plan exist.\n- QA/AQA must review implementation against the refined Story, baseline, handoffs, tests and risk ledger.\n\nAI may propose acceptance criteria from expected behavior, but must mark them as AI-proposed until accepted.\n\nImplementation may not start directly from a framing-level story idea unless:\n\n- it has been refined into a Delivery Story,\n- required Level 3 handoffs exist,\n- the Development Plan exists,\n- the implementation remains inside approved scope,\n- no unaccepted high risk exists,\n- test or verification evidence can be produced.\n\nAI must ask for a value checkpoint when:\n\n- the story idea changes product direction,\n- several possible value interpretations exist,\n- prioritization affects what gets built first,\n- expected behavior is materially ambiguous,\n- implementation would change UX materially,\n- implementation affects data, security, architecture, dependencies, cost, release risk or scope,\n- residual risk requires acceptance.\n\nAI must not ask the user to approve low-risk refinement mechanics such as internal naming, story splitting, test naming, file organization or obvious acceptance-criteria drafting when value intent is clear and risk remains inside approved scope.\n\nAI may batch multiple refined story ideas into one concise value checkpoint.\n\nIf implementation proceeds from AI-proposed Stories without individual user acceptance, the final report must disclose that these Stories were AI-refined within approved scope and identify any remaining acceptance or release risk.\n\nIf the framing input is incomplete, AI must log missing information and either:\n\n- continue with provisional mapping if risk is low,\n- ask the user for missing business context,\n- classify the item as Exploration,\n- or defer implementation.\n\n## Required Role Mandates\n\nThe workflow must explicitly cover these role mandates.\n\nA mandate may be executed by a human, agent, or combined role, but responsibility and approval authority must be clear.\n\n### Analyst\n\nResponsibilities:\n\n- requirement interpretation,\n- ambiguity log,\n- baseline mapping,\n- source-of-truth identification,\n- scope-in/scope-out validation,\n- unresolved assumption register,\n- classification of framing-level story ideas,\n- vocabulary and terminology ambiguity detection.\n\nDefault artifact:\n\n`docs/agent-handoffs/01-analyst-handoff.md`\n\nMust include:\n\n- interpreted requirements,\n- ambiguity log,\n- source baseline,\n- scope-in items,\n- scope-out items,\n- assumptions,\n- missing information,\n- initial risk notes,\n- story idea classification where relevant,\n- terminology assumptions and ambiguities.\n\n### Product / PM / Value Owner\n\nResponsibilities:\n\n- Outcome validation,\n- scope and priority,\n- acceptance criteria,\n- decision classification,\n- MVP/release boundary,\n- value checkpoint preparation,\n- residual risk acceptance through human/user-proxy approval.\n\nDefault artifact:\n\n`docs/agent-handoffs/02-product-handoff.md`\n\nMust include:\n\n- Outcome statement,\n- Value Spine draft,\n- Epic list,\n- prioritization,\n- acceptance principles,\n- explicit decisions,\n- deferred decisions,\n- user-proxy approvals,\n- residual risks requiring human acceptance,\n- handling of story ideas and AI-proposed Stories.\n\n### UX Designer\n\nResponsibilities:\n\n- journey-to-screen model,\n- interaction risks,\n- accessibility notes,\n- usability assumptions,\n- user flow and navigation implications,\n- UX classification of story ideas.\n\nDefault artifact:\n\n`docs/agent-handoffs/03-ux-handoff.md`\n\nMust include:\n\n- journey context,\n- screen model,\n- primary user flows,\n- interaction risks,\n- accessibility considerations,\n- mobile/responsive considerations if relevant,\n- UX acceptance notes,\n- story ideas classified as Journey / UX Context where relevant.\n\n### Solution / AI Delivery Architect\n\nResponsibilities:\n\n- technical design,\n- data model,\n- architecture constraints,\n- dependency review,\n- security review,\n- AI workflow and tool boundary definition,\n- reproducibility approach,\n- architecture risks,\n- technical classification of story ideas,\n- behavioural contract surface identification,\n- compatibility policy assessment,\n- AI technical debt assessment,\n- downgrade recommendation if Level 3 is not justified.\n\nDefault artifact:\n\n`docs/agent-handoffs/04-architecture-handoff.md`\n\nMust include:\n\n- architecture overview,\n- data model,\n- constraints,\n- dependencies,\n- security and privacy notes,\n- AI workflow boundaries,\n- tool access boundaries,\n- reproducibility requirements,\n- test strategy,\n- behavioural contract test approach where relevant,\n- compatibility decision where relevant,\n- technical debt risks,\n- Level 3 feasibility assessment,\n- architecture impact of story ideas.\n\n### Developer\n\nResponsibilities:\n\n- implementation plan,\n- code changes,\n- Story-ID mapping,\n- trace mapping from requirement to code and test,\n- implementation notes,\n- local verification,\n- specification correction when implementation reveals spec gaps.\n\nDefault artifact:\n\n`docs/agent-handoffs/05-development-plan.md`\n\nMust include:\n\n- implementation plan,\n- files to change or create,\n- Story-to-code mapping,\n- technical decisions,\n- compatibility decisions where relevant,\n- local test plan,\n- behavioural contract test plan where relevant,\n- expected outputs,\n- known implementation risks,\n- technical debt risks.\n\nCreating, modifying or deleting runtime/application code counts as implementation.\n\nNo code implementation may start until Analyst, Product/PM, UX and Architect handoffs exist, unless a documented exception approval exists.\n\n### AI Quality Authority / QA Reviewer\n\nResponsibilities:\n\n- review of AI-generated artifacts,\n- acceptance audit,\n- regression risk assessment,\n- test evidence verification,\n- review against baseline,\n- review against Value Spine,\n- review against risk ledger,\n- review of story idea refinement quality,\n- review of specification corrections,\n- review of compatibility decisions,\n- review of AI technical debt,\n- authority to block final delivery if evidence is insufficient.\n\nDefault artifact:\n\n`docs/agent-handoffs/06-qa-review.md`\n\nMust include:\n\n- review scope,\n- reviewed artifacts,\n- acceptance criteria audit,\n- test evidence,\n- behavioural contract coverage,\n- regression risks,\n- security/privacy risks,\n- specification correction review,\n- compatibility review,\n- AI technical debt review,\n- unresolved gaps,\n- release recommendation,\n- whether QA was independent or simulated,\n- review of how story ideas were refined into Delivery Stories.\n\nQA must not claim independent approval if performed by the same AI system that generated the implementation.\n\n### Tech Writer / Reporter\n\nResponsibilities:\n\n- customer-facing traceability report,\n- implementation comparison,\n- unresolved risk summary,\n- retrospective report,\n- final evidence pack summary.\n\nDefault artifact:\n\n`docs/agent-handoffs/07-final-report.md`\n\nMust include:\n\n- what was requested,\n- what was implemented,\n- what changed,\n- what was not implemented,\n- what was deferred,\n- what was out of scope,\n- test evidence summary,\n- behavioural contract test summary where relevant,\n- risk summary,\n- specification corrections,\n- compatibility decisions,\n- AI technical debt summary,\n- vocabulary assumptions,\n- actual AI level achieved,\n- distinction between actual multi-agent execution and simulated role reasoning,\n- how framing-level story ideas were refined into AI-proposed Delivery Stories,\n- final release recommendation.\n\nThe final report may recommend release, conditional release, pause or downgrade. It must not approve release unless a human mandate holder or user proxy approval is logged.\n\n## Handoff Rules\n\nEach role must produce a handoff artifact in:\n\n`docs/agent-handoffs/`\n\nRequired minimum artifacts:\n\n- `01-analyst-handoff.md`\n- `02-product-handoff.md`\n- `03-ux-handoff.md`\n- `04-architecture-handoff.md`\n- `05-development-plan.md`\n- `06-qa-review.md`\n- `07-final-report.md`\n- `workflow-log.md`\n\nImplementation may not start until these exist:\n\n- Analyst handoff,\n- Product/PM handoff,\n- UX handoff,\n- Architecture handoff.\n\nThen AI must produce a Development Plan.\n\nOnly after that may implementation begin.\n\nException is allowed only if a documented exception approval exists in:\n\n`docs/agent-handoffs/workflow-log.md`\n\nA missing handoff must be treated as a governance gap, not ignored.\n\n## Exception Approval\n\nAny bypass must be documented in:\n\n`docs/agent-handoffs/workflow-log.md`\n\nThe bypass record must include:\n\n- approving human or user-proxy approval,\n- whether the approver is actual mandate holder, delegated proxy or unverified proxy,\n- reason for exception,\n- affected Story-ID or artifact,\n- accepted risk,\n- required compensating control,\n- expiry or follow-up condition,\n- whether the bypass affects release eligibility.\n\nA bypass does not remove the requirement for:\n\n- retrospective traceability,\n- risk logging,\n- QA review,\n- final-report disclosure.\n\nAI may not use a bypass to override explicit scope-out.\n\n## AI Risk Ledger\n\nFor Level 3, the orchestrator must maintain an AI Risk Ledger.\n\nDefault artifact:\n\n`docs/governance/ai-risk-ledger.md`\n\nIf the project already uses a Risk Register, it may be used as the equivalent artifact only if it contains the required AI-specific risk fields.\n\nThe AI Risk Ledger must include:\n\n- risk ID,\n- affected Outcome/Epic/Story,\n- risk description,\n- risk category,\n- probability,\n- impact,\n- mitigation,\n- risk owner,\n- acceptance status,\n- release impact,\n- review date or status,\n- whether user-proxy approval was used.\n\nRisk categories should include where relevant:\n\n- technical risk,\n- data/privacy risk,\n- security risk,\n- AI/reproducibility risk,\n- test/regression risk,\n- usability risk,\n- operational risk,\n- scope risk,\n- dependency risk,\n- governance risk,\n- compatibility risk,\n- AI technical debt risk,\n- specification drift risk.\n\nUnaccepted high risks must block release unless explicit user-proxy or mandate-holder acceptance is logged and QA records the exception.\n\nLow risks that are fully mitigated may be summarized rather than escalated to the user.\n\n## Agent Workflow Evidence\n\nThe orchestrator must maintain a workflow log.\n\nDefault artifact:\n\n`docs/agent-handoffs/workflow-log.md`\n\nThe workflow log must show:\n\n- role order,\n- handoff status,\n- agent or human executing each role,\n- whether execution was actual multi-agent or simulated role reasoning,\n- decisions made,\n- unresolved ambiguities,\n- bypasses,\n- approvals,\n- risks escalated,\n- final release recommendation.\n\nThe workflow log must include:\n\n`Actual vs Simulated Execution`\n\nThis section must state:\n\n- whether separate agents were used,\n- whether a single AI simulated multiple roles,\n- what compensating controls were used,\n- which reviews were independent,\n- which reviews were simulated,\n- whether this affects the achieved AI level.\n\n## AI Delivery Blueprint\n\nFor Level 3, AI must produce or update an AI Delivery Blueprint.\n\nDefault artifact:\n\n`docs/governance/ai-delivery-blueprint.md`\n\nThe AI Delivery Blueprint must include:\n\n- selected AI Acceleration Level,\n- justification for Level 3,\n- risk profile,\n- AI Usage Scopes,\n- agent/workflow structure,\n- tool boundaries,\n- prompt/workflow versioning approach,\n- reproducibility approach,\n- review requirements,\n- test requirements,\n- behavioural contract test approach,\n- compatibility policy,\n- technical debt monitoring approach,\n- downgrade triggers.\n\nIf this artifact cannot be produced, full Level 3 completion must not be claimed.\n\n## AAS Evidence Pack\n\nBefore final delivery, AI must produce or update an AAS Evidence Pack.\n\nDefault artifact:\n\n`docs/governance/aas-evidence-pack.md`\n\nThe AAS Evidence Pack must contain:\n\n- Outcome/Epic/Story/Test trace,\n- implementation map,\n- AI usage log,\n- agent or simulated-agent workflow log reference,\n- risk ledger reference,\n- decision log reference,\n- test evidence,\n- behavioural contract test evidence where relevant,\n- specification correction log or summary,\n- compatibility decisions,\n- AI technical debt summary,\n- vocabulary assumptions where relevant,\n- unresolved gaps,\n- scope-out decisions,\n- release recommendation,\n- human/user-proxy approvals and exceptions,\n- actual achieved AI level,\n- how framing-level story ideas were refined and governed.\n\n## Decision Log\n\nThe orchestrator must maintain a decision log.\n\nDefault artifact:\n\n`docs/governance/decision-log.md`\n\nThe decision log must include:\n\n- decision ID,\n- date/time if available,\n- decision description,\n- decision type,\n- affected Outcome/Epic/Story,\n- decision owner or user proxy,\n- rationale,\n- alternatives considered if relevant,\n- risk impact,\n- follow-up action.\n\nDecision types:\n\n- SCOPE,\n- VALUE,\n- RISK,\n- ARCHITECTURE,\n- UX,\n- TEST,\n- SECURITY,\n- DATA,\n- DELIVERY,\n- RELEASE,\n- EXCEPTION,\n- SPEC_CORRECTION,\n- COMPATIBILITY,\n- TECH_DEBT.\n\nLow-risk autonomous AI decisions may be logged in summarized form rather than individually when they do not materially affect value, scope, risk, UX, data, security, architecture, dependencies or release.\n\n## Traceability Map\n\nThe orchestrator must maintain a traceability map.\n\nDefault artifact:\n\n`docs/traceability/implementation-map.json`\n\nor an equivalent project-defined traceability artifact.\n\nIt must map:\n\n- Outcome,\n- Epic,\n- Story,\n- source story idea where relevant,\n- acceptance criteria,\n- implementation files,\n- tests,\n- behavioural contract tests where relevant,\n- AI-generated artifacts,\n- review evidence,\n- status.\n\nThe final report must summarize traceability coverage and identify any untraced artifacts.\n\nUntraced runtime/application artifacts must be treated as release risks until classified.\n\n## Scope-Out and Risk Boundaries\n\nExplicit scope-out must be treated as a hard boundary.\n\nAI may not implement or silently prepare functionality that changes the risk profile without documented approval.\n\nExamples of risk-profile-changing work include:\n\n- external data transfer,\n- hosted backend,\n- cloud sync,\n- authentication,\n- payment integration,\n- bank integration,\n- automated cancellation or external supplier action,\n- sensitive data processing beyond approved local scope,\n- production deployment,\n- analytics/tracking,\n- third-party data sharing.\n\nIf such work appears necessary, AI must stop and request user-proxy approval with risk explanation.\n\n## Specification Correction Loop\n\nIf implementation or testing reveals that the baseline, specification, Story, expected behavior or acceptance criteria were incomplete, incorrect or ambiguous, AI must update the relevant specification artifact before claiming completion.\n\nAI must not silently fix code while leaving the governing specification stale.\n\nThe correction must be logged in the decision log and reflected in the traceability map.\n\nSpecification correction must include:\n\n- what was wrong, missing or ambiguous,\n- affected Outcome/Epic/Story/Test,\n- updated requirement or acceptance criterion,\n- implementation impact,\n- test impact,\n- whether human value approval is required.\n\nAI may perform low-risk specification corrections autonomously when:\n\n- the correction clarifies already approved value,\n- no scope expansion occurs,\n- no material UX/data/security/architecture/release risk changes,\n- tests can verify the corrected behavior.\n\nAI must ask for a value checkpoint when the correction changes value direction, scope, expected behavior, release risk or residual risk.\n\n## Behavioural Contract Testing\n\nAI must identify the most important behaviour surface for the system or change.\n\nExamples:\n\n- API contract tests,\n- message replay scripts,\n- golden input/output fixtures,\n- UI journey tests,\n- import/export roundtrip tests,\n- data pipeline replay tests,\n- CLI command output snapshots,\n- domain calculation examples.\n\nWhen practical and proportionate to risk, AI should define behavioural contract tests that make expected behaviour visible and regression-detectable.\n\nBehavioural contract tests must be linked to Story-ID or requirement source.\n\nFor Level 3, behavioural contract tests should be treated as preferred evidence for user-visible, API-visible, message-visible, import/export-visible or workflow-visible behaviour.\n\nIf no behavioural contract test is practical, AI must explain the chosen alternative verification approach in test evidence and QA review.\n\nAI must prefer behaviour-level validation for changes where unit tests alone would not reveal user-visible or integration-visible regression.\n\n## Compatibility Policy\n\nAI must not create compatibility layers, legacy adapters or backward-compatible behavior unless one of the following is true:\n\n- the baseline explicitly requires compatibility,\n- the user proxy approves it,\n- removal would create unacceptable data, user or release risk,\n- it is documented as a temporary migration step with a follow-up removal condition.\n\nUnrequested compatibility preservation must be logged as a potential technical debt risk.\n\nIf a functional interface is being changed, AI must determine and document one of:\n\n- preserve compatibility,\n- intentionally break compatibility,\n- migrate and remove old path,\n- maintain temporary compatibility with removal condition,\n- defer compatibility decision to user proxy.\n\nAI must ask for a value checkpoint if compatibility affects user behavior, external contracts, data migration, release risk or scope.\n\n## AI Technical Debt Monitoring\n\nAI must identify potential AI-generated technical debt, including:\n\n- unnecessary compatibility layers,\n- duplicated logic,\n- unclear ownership,\n- brittle generated code,\n- overfitted tests,\n- excessive abstraction,\n- hidden coupling,\n- unexplained generated code,\n- generated code that future maintainers may not understand,\n- agent-created code paths that lack clear human ownership,\n- large changes that reduce maintainability despite passing tests.\n\nMaterial AI technical debt must be logged in the AI Risk Ledger or technical debt log and summarized in the final report.\n\nIf the project has a technical debt log, use it. Otherwise, create or update:\n\n`docs/governance/technical-debt-log.md`\n\nAI technical debt entries should include:\n\n- debt ID,\n- affected file/module,\n- affected Outcome/Epic/Story,\n- description,\n- risk,\n- recommended mitigation,\n- urgency,\n- owner or proposed owner,\n- whether it blocks release.\n\nAI may continue with low technical debt if it is logged and does not materially affect release risk. Medium or high technical debt must be summarized before final delivery recommendation.\n\n## Shared Vocabulary\n\nAI must use project terminology consistently.\n\nIf the project contains a glossary, vocabulary, ubiquitous language, domain model or terminology section, AI must follow it.\n\nIf terminology is unclear or inconsistent, AI must create or update:\n\n`docs/governance/vocabulary.md`\n\nor record vocabulary assumptions in the Analyst handoff and requirements baseline.\n\nThe vocabulary artifact should include:\n\n- term,\n- definition,\n- source,\n- synonyms or forbidden synonyms,\n- ambiguity notes,\n- affected Stories or modules.\n\nAI must not invent new domain terms when existing terms are available.\n\nIf different project artifacts use different terms for the same concept, AI must document the mapping and avoid silently mixing them.\n\nAI should ask the user only when terminology ambiguity affects business meaning, value, scope, data, UX or release risk.\n\n## QA and Release Gate\n\nQA must review implementation against:\n\n- original baseline,\n- Value Spine,\n- role handoffs,\n- refined story ideas and AI-proposed Delivery Stories,\n- acceptance criteria,\n- test evidence,\n- behavioural contract tests where relevant,\n- specification corrections,\n- compatibility decisions,\n- AI technical debt,\n- vocabulary consistency,\n- AI Risk Ledger,\n- known gaps,\n- scope-out decisions,\n- implementation map,\n- security/privacy constraints,\n- reproducibility requirements.\n\nFinal delivery is blocked if critical evidence is missing for:\n\n- regression,\n- acceptance,\n- security,\n- data/privacy,\n- reproducibility,\n- traceability.\n\nException is allowed only if:\n\n- the Value Owner explicitly accepts the residual risk through the user proxy or named mandate holder,\n- the AI Quality Authority records the exception,\n- the exception appears in the final report,\n- compensating controls are documented.\n\n## Testing Requirements\n\nEach Story must have a Test Definition.\n\nTest Definition must state:\n\n- test level,\n- automation status,\n- test file or test evidence,\n- behavioural contract surface where relevant,\n- coverage expectation,\n- whether manual verification is acceptable,\n- whether regression testing is required.\n\nFor Level 3, AI must prefer:\n\n- automated regression suite,\n- reproducible test runs,\n- isolated testing of agent workflows,\n- traceability from test to Story-ID,\n- behavioural contract tests for user-visible or integration-visible behavior.\n\nIf automated browser/E2E testing is missing for UI-critical work, this must be logged as a quality risk and reflected in the achieved AI level.\n\nAI must record:\n\n- test commands run,\n- results,\n- tests not run,\n- reason tests were not run,\n- residual risk from missing tests,\n- recommended next test step.\n\nAI should not ask the user which test file names or test structure to use unless the choice affects architecture, tooling, cost, dependencies or release risk.\n\n## Reproducibility Requirements\n\nFor Level 3, AI must document:\n\n- AI model/tool used if known,\n- agent/workflow structure,\n- prompt or instruction version if available,\n- relevant input artifacts,\n- generated output artifacts,\n- tool boundaries,\n- test evidence,\n- behavioural contract evidence where relevant,\n- specification corrections,\n- compatibility decisions,\n- steps required to reproduce or review the work.\n\nIf exact reproduction is not possible, AI must state the limitation and provide best available reproducibility evidence.\n\n## Downgrade Rule\n\nIf Level 3 evidence cannot be produced, AI must not claim full Level 3 completion.\n\nFull Level 3 may be claimed only if all required handoffs exist, AI Risk Ledger exists, AI Delivery Blueprint exists, Evidence Pack exists, QA review exists, actual vs simulated execution is disclosed, story ideas have been refined before implementation, and implementation artifacts are mapped to Outcome/Epic/Story/Test evidence.\n\nAI must explicitly recommend one of:\n\n- proceed as Level 3,\n- proceed as Level 2 with Level 3 controls,\n- pause implementation until missing governance or test evidence exists,\n- request documented exception approval through the user proxy.\n\nThe final report must state the actual achieved AI level, not only the requested level.\n\nDowngrade must be recommended if any of the following are true:\n\n- Value Spine is incomplete,\n- baseline is missing or unverifiable,\n- AI Risk Ledger is missing,\n- AI Delivery Blueprint is missing,\n- critical test evidence is missing,\n- no meaningful QA review occurred,\n- the same AI produced and approved its own work without disclosure,\n- scope or risk approval is unclear,\n- unresolved high risk has not been accepted,\n- implementation artifacts lack Story-ID mapping,\n- framing-level story ideas were implemented without refinement into Delivery Stories or documented exception,\n- governing specification remained stale after material implementation correction,\n- material AI technical debt is unlogged,\n- compatibility decisions materially affect release and are undocumented.\n\n## Communication Protocol\n\nAI must keep the user informed at major control points:\n\n- after initial interpretation,\n- before implementation starts,\n- when a governance gap is found,\n- when user-proxy approval is required,\n- before final release recommendation.\n\nUpdates must be concise and must identify:\n\n- current phase,\n- value being created,\n- completed handoffs,\n- open risks,\n- approval needed if any,\n- next action.\n\nAI may continue autonomously between checkpoints when work remains inside approved scope and required handoffs exist.\n\nAI must not claim to work asynchronously or in the background. It must perform work in the current interaction context and report what was actually completed.\n\n## Human Mandate\n\nAI may produce:\n\n- analysis,\n- requirements interpretation,\n- refinement,\n- code,\n- tests,\n- documentation,\n- reports,\n- recommendations.\n\nAI may not:\n\n- accept risk,\n- approve release,\n- expand scope beyond approved boundaries,\n- override scope-out,\n- approve its own quality,\n- hide uncertainty,\n- hide unresolved assumptions,\n- claim independent review when review was simulated,\n- claim Level 3 completion without Level 3 evidence.\n\nFinal responsibility remains with the assigned human mandate holder.\n\nIf no separate mandate holder is reachable, the user proxy is treated as the channel for that mandate holder’s decision, and the decision must be logged as such.\n\nIf the user proxy’s mandate is unclear, AI may proceed only by logging the approval as unverified proxy approval and recording the residual governance risk.\n\n## Final Report Requirements\n\nThe final report must include:\n\n1. Requested AI Acceleration Level.\n2. Actual achieved AI Acceleration Level.\n3. Reason for any downgrade.\n4. Outcome/Epic/Story/Test coverage.\n5. Summary of implemented scope.\n6. Summary of not implemented or deferred scope.\n7. Scope-out confirmation.\n8. Test evidence summary.\n9. Behavioural contract test summary where relevant.\n10. Risk ledger summary.\n11. Decision log summary.\n12. Specification corrections made.\n13. Compatibility decisions.\n14. AI technical debt summary.\n15. Vocabulary or terminology assumptions.\n16. Actual vs simulated multi-agent execution.\n17. QA independence statement.\n18. User-proxy approvals and exceptions.\n19. Unresolved risks.\n20. Release recommendation.\n21. Recommended next control step.\n22. How framing-level story ideas were classified and refined.\n23. Value created or expected value supported by the delivery.\n\nThe final report must be explicit, auditable and honest.\n\nIt must not overstate completion, independence, testing, approval or Level 3 compliance.\n\n## Lightweight Level 3 Update Path\n\nFor minor documentation-only or non-runtime changes, AI may use a lightweight Level 3 update path, but must still update:\n\n- workflow-log,\n- affected traceability artifacts,\n- decision log if a decision was made,\n- risk notes if relevant,\n- vocabulary if terminology is affected,\n- technical debt log if technical debt is identified,\n- final disclosure if relevant.\n\nRuntime, data, security, UX-critical, architecture-impacting, dependency-impacting, release-impacting or scope-impacting changes always require the full workflow.\n\n## Value Checkpoint Format\n\nWhen AI needs human input, it must use this format:\n\nVALUE CHECKPOINT\n\nDecision needed:\n[One sentence]\n\nRecommended option:\n[Clear recommendation]\n\nWhy this creates value:\n[Explain expected value/outcome]\n\nAlternatives:\n[Brief alternatives]\n\nRisk if approved:\n[Risk]\n\nRisk if not approved:\n[Risk]\n\nAffected Value Spine:\n[Outcome/Epic/Story]\n\nBlocks implementation:\n[Yes/No]\n\nSuggested response:\nAPPROVE / APPROVE WITH CONDITION / REJECT / DEFER / REQUEST CHANGE\n\nAI must not use this format for low-risk delivery mechanics. It is reserved for value, scope, risk, release or business-context decisions.\n\n## Operating Instruction\n\nStart by initializing the governance and handoff structure.\n\nBefore implementing, produce:\n\n- Analyst handoff,\n- Product/PM handoff,\n- UX handoff,\n- Architecture handoff.\n\nThen produce the Development Plan.\n\nOnly then implement.\n\nAfter implementation, produce:\n\n- QA Review,\n- Evidence Pack,\n- Final Report.\n\nIf terminology is unclear, create or update vocabulary.\n\nIf material technical debt is identified, create or update technical debt log.\n\nIf compatibility decisions are relevant, document them before final delivery.\n\nIf implementation or testing reveals spec gaps, update the relevant specification artifact before claiming completion.\n\nIf the repository or tool context prevents creating files, provide the full content of each required artifact in the response and clearly state which files should be created manually.\n\nProceed under these rules unless the human user explicitly changes the requested acceleration level or delivery mode.\n\nHuman Mandate, scope-out boundaries, traceability requirements, and truthful reporting of actual achieved level may not be waived by informal instruction."
+          },
+          {
+            "title": "Discovery loop accelerator",
+            "category": "General",
+            "priority": "High",
+            "body": "Downstream AI should run an accelerated discovery loop from this Framing package instead of asking for approval at every ordinary refinement step.\nStart by inspecting Outcome, Epics, Story Ideas, Journey Context, constraints, AI level, risk posture and approval context.\nUse available specialist agents or BMAD-style roles when helpful, for example analyst, product, UX, architect, dev and QA perspectives, but return one consolidated source-of-truth output.\nMake reasonable documented assumptions, batch open questions, and continue until a meaningful refinement package exists.\nEscalate to the human only for governance-sensitive decisions, missing critical facts, material scope changes, high-risk data/security/privacy issues, or approval/sign-off boundaries.\nReturn traceable discovery outputs linked back to Outcome -> Epic -> Story Idea -> Journey where applicable, plus assumptions, risks, suggested next experiments and validation checks."
+          }
+        ],
+        "deviationsSummary": [
+          "No preferences currently deviate from the recommended defaults."
+        ],
+        "warningValidationNotes": [
+          "No hard validation issues or warnings are currently active."
+        ]
+      }
+    },
+    "approvals": {
+      "status": "approved",
+      "approved_version": 15,
+      "approved_at": "2026-05-19T20:54:00.836Z",
+      "signoffs": [
+        {
+          "role": "aqa",
+          "person": "Denzel Washington",
+          "role_title": "AI Quality Authority",
+          "side": "supplier",
+          "note": "ok",
+          "approved_at": "2026-05-19T20:54:00.776Z"
+        },
+        {
+          "role": "value owner",
+          "person": "Anne Hathaway",
+          "role_title": "Value Owner",
+          "side": "customer",
+          "note": "Ok",
+          "approved_at": "2026-05-19T20:53:52.515Z"
+        }
+      ]
+    },
+    "next_step_handoff": {
+      "recommended_use": "Use this Framing package as the governed source of truth when you move into design, story refinement or structured delivery planning with BMAD or another AI tool.",
+      "references": [
+        "Treat the customer handshake, baseline and AI/risk posture as the framing source of truth.",
+        "Treat Epics and Story Ideas as directional input for design and later delivery refinement, not as fixed implementation steps.",
+        "If later steps create Delivery Stories or extra work items, keep them traceable back to this Framing package or record them explicitly as feedback-loop additions.",
+        "Use the approval section to understand whether this Framing version is already signed off for Tollgate 1.",
+        "Use the UX sketch references where they exist to preserve visual intent in the next step."
+      ]
+    },
+    "metadata": {
+      "lifecycle_state": "active",
+      "origin_type": "imported",
+      "exported_at": "2026-05-19T20:54:01.087Z"
+    }
+  }
+}
