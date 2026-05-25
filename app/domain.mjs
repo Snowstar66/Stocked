@@ -1,4 +1,5 @@
-export const STORAGE_KEY = "matsvinnskollen.state.v1";
+export const STORAGE_KEY = "stocked.state.v1";
+export const LEGACY_STORAGE_KEYS = ["matsvinnskollen.state.v1"];
 export const CATEGORIES = ["Kyl", "Frys", "Skafferi", "Annat"];
 export const DEFAULT_PLACE_NAME = "Hem";
 
@@ -20,7 +21,7 @@ export function createInitialState(now = new Date()) {
 
 export function loadState(storage = globalThis.localStorage) {
   if (!storage) return createInitialState();
-  const stored = storage.getItem(STORAGE_KEY);
+  const stored = storage.getItem(STORAGE_KEY) || LEGACY_STORAGE_KEYS.map((key) => storage.getItem(key)).find(Boolean);
   if (!stored) {
     const initial = createInitialState();
     saveState(initial, storage);
@@ -108,12 +109,46 @@ export function renamePlace(state, placeId, name, now = new Date()) {
 export function addItem(state, input, now = new Date()) {
   const name = cleanText(input.name);
   if (!name) return { state, error: "Ange ett namn på varan." };
+  const barcode = cleanBarcode(input.barcode);
+  const quantity = clampQuantity(input.quantity);
+  if (barcode) {
+    const place = activePlace(state);
+    const existingItem = place.items.find((candidate) => candidate.barcode === barcode);
+    if (existingItem) {
+      const nextQuantity = Math.min(99, existingItem.quantity + quantity);
+      const mergedItem = {
+        ...existingItem,
+        quantity: nextQuantity,
+        brand: existingItem.brand || cleanText(input.brand),
+        productImageUrl:
+          existingItem.productImageUrl || (validProductImageUrl(input.productImageUrl) ? input.productImageUrl : ""),
+        photoDataUrl: existingItem.photoDataUrl || (validPhotoDataUrl(input.photoDataUrl) ? input.photoDataUrl : "")
+      };
+      return {
+        state: updateActivePlace(
+          state,
+          (candidate) => ({
+            ...candidate,
+            items: candidate.items.map((item) => (item.id === existingItem.id ? mergedItem : item))
+          }),
+          `Ökade ${existingItem.name} till ${nextQuantity}.`,
+          now
+        ),
+        item: mergedItem,
+        merged: true
+      };
+    }
+  }
   const item = {
     id: makeId("item", now),
     name,
     category: CATEGORIES.includes(input.category) ? input.category : "Annat",
-    quantity: clampQuantity(input.quantity),
-    date: validIsoDate(input.date) ? input.date : ""
+    quantity,
+    date: validIsoDate(input.date) ? input.date : "",
+    barcode,
+    brand: cleanText(input.brand),
+    photoDataUrl: validPhotoDataUrl(input.photoDataUrl) ? input.photoDataUrl : "",
+    productImageUrl: validProductImageUrl(input.productImageUrl) ? input.productImageUrl : ""
   };
   return {
     state: updateActivePlace(state, (place) => ({ ...place, items: [...place.items, item] }), `Lade till ${item.name}.`, now),
@@ -131,6 +166,99 @@ export function markItemUsed(state, itemId, now = new Date()) {
       : place.items.filter((candidate) => candidate.id !== itemId);
   const action = item.quantity > 1 ? `Minskade ${item.name} med 1.` : `Markerade ${item.name} som använd.`;
   return { state: updateActivePlace(state, (candidate) => ({ ...candidate, items: nextItems }), action, now) };
+}
+
+export function removeItemUnit(state, itemId, now = new Date()) {
+  const place = activePlace(state);
+  const item = place.items.find((candidate) => candidate.id === itemId);
+  if (!item) return { state, error: "Varan finns inte längre i lagret." };
+  const nextItems =
+    item.quantity > 1
+      ? place.items.map((candidate) => (candidate.id === itemId ? { ...candidate, quantity: candidate.quantity - 1 } : candidate))
+      : place.items.filter((candidate) => candidate.id !== itemId);
+  const action = item.quantity > 1 ? `Ångrade en registrering av ${item.name}.` : `Tog bort ${item.name}.`;
+  return {
+    state: updateActivePlace(state, (candidate) => ({ ...candidate, items: nextItems }), action, now),
+    removed: item.quantity <= 1,
+    item: { ...item, quantity: Math.max(0, item.quantity - 1) }
+  };
+}
+
+export function updateItemDate(state, itemId, date, now = new Date()) {
+  if (!validIsoDate(date)) return { state, error: "Ange ett giltigt datum." };
+  const place = activePlace(state);
+  const item = place.items.find((candidate) => candidate.id === itemId);
+  if (!item) return { state, error: "Varan finns inte längre i lagret." };
+  return {
+    state: updateActivePlace(
+      state,
+      (candidate) => ({
+        ...candidate,
+        items: candidate.items.map((candidateItem) => (candidateItem.id === itemId ? { ...candidateItem, date } : candidateItem))
+      }),
+      `Satte datum ${date} för ${item.name}.`,
+      now
+    ),
+    item: { ...item, date }
+  };
+}
+
+export function updateItemCategory(state, itemId, category, now = new Date()) {
+  if (!CATEGORIES.includes(category)) return { state, error: "Välj en giltig kategori." };
+  const place = activePlace(state);
+  const item = place.items.find((candidate) => candidate.id === itemId);
+  if (!item) return { state, error: "Varan finns inte längre i lagret." };
+  return {
+    state: updateActivePlace(
+      state,
+      (candidate) => ({
+        ...candidate,
+        items: candidate.items.map((candidateItem) => (candidateItem.id === itemId ? { ...candidateItem, category } : candidateItem))
+      }),
+      `Satte kategori ${category} för ${item.name}.`,
+      now
+    ),
+    item: { ...item, category }
+  };
+}
+
+export function updateItemName(state, itemId, name, now = new Date()) {
+  const itemName = cleanText(name);
+  if (!itemName) return { state, error: "Ange ett namn på varan." };
+  const place = activePlace(state);
+  const item = place.items.find((candidate) => candidate.id === itemId);
+  if (!item) return { state, error: "Varan finns inte längre i lagret." };
+  return {
+    state: updateActivePlace(
+      state,
+      (candidate) => ({
+        ...candidate,
+        items: candidate.items.map((candidateItem) => (candidateItem.id === itemId ? { ...candidateItem, name: itemName } : candidateItem))
+      }),
+      `Döpte om ${item.name} till ${itemName}.`,
+      now
+    ),
+    item: { ...item, name: itemName }
+  };
+}
+
+export function updateItemQuantity(state, itemId, quantity, now = new Date()) {
+  const nextQuantity = clampQuantity(quantity);
+  const place = activePlace(state);
+  const item = place.items.find((candidate) => candidate.id === itemId);
+  if (!item) return { state, error: "Varan finns inte längre i lagret." };
+  return {
+    state: updateActivePlace(
+      state,
+      (candidate) => ({
+        ...candidate,
+        items: candidate.items.map((candidateItem) => (candidateItem.id === itemId ? { ...candidateItem, quantity: nextQuantity } : candidateItem))
+      }),
+      `Satte antal ${nextQuantity} för ${item.name}.`,
+      now
+    ),
+    item: { ...item, quantity: nextQuantity }
+  };
 }
 
 export function addShoppingItem(state, input, now = new Date()) {
@@ -270,7 +398,11 @@ function normalizeItem(item) {
     name,
     category: CATEGORIES.includes(item.category) ? item.category : "Annat",
     quantity: clampQuantity(item.quantity),
-    date: validIsoDate(item.date) ? item.date : ""
+    date: validIsoDate(item.date) ? item.date : "",
+    barcode: cleanBarcode(item.barcode),
+    brand: cleanText(item.brand),
+    photoDataUrl: validPhotoDataUrl(item.photoDataUrl) ? item.photoDataUrl : "",
+    productImageUrl: validProductImageUrl(item.productImageUrl) ? item.productImageUrl : ""
   };
 }
 
@@ -317,6 +449,24 @@ function cleanText(value) {
 
 function validIsoDate(value) {
   return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(new Date(value).getTime());
+}
+
+function validPhotoDataUrl(value) {
+  return typeof value === "string" && /^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]+$/i.test(value);
+}
+
+function validProductImageUrl(value) {
+  try {
+    const url = new URL(String(value || ""));
+    return url.protocol === "https:" && /(^|\.)openfoodfacts\.(org|net)$/.test(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function cleanBarcode(value) {
+  const barcode = String(value ?? "").trim().replace(/[\s-]/g, "");
+  return /^[0-9]{6,18}$/.test(barcode) ? barcode : "";
 }
 
 function makeId(prefix, now = new Date()) {

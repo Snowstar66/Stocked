@@ -1,6 +1,12 @@
-const STORAGE_KEY = "matsvinnskollen.state.v1";
+const STORAGE_KEY = "stocked.state.v1";
+const LEGACY_STORAGE_KEYS = ["matsvinnskollen.state.v1"];
 const CATEGORIES = ["Kyl", "Frys", "Skafferi", "Annat"];
 const DEFAULT_PLACE_NAME = "Hem";
+const MAX_PHOTO_SIZE = 900;
+const PHOTO_QUALITY = 0.72;
+const OPEN_FOOD_FACTS_ENDPOINT = "https://world.openfoodfacts.org/api/v2/product/";
+const OPEN_FOOD_FACTS_FIELDS = "product_name,product_name_sv,generic_name,brands,categories,categories_tags,image_front_small_url,image_small_url,image_url";
+const BARCODE_FORMATS = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"];
 
 const icons = {
   items:
@@ -13,7 +19,16 @@ const icons = {
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>'
 };
 
-const state = { current: loadState(), view: "overview" };
+const state = {
+  current: loadState(),
+  view: "overview",
+  pendingPhotoDataUrl: "",
+  lastScannedItemId: "",
+  barcodeDetector: null,
+  barcodeStream: null,
+  barcodeScanTimer: 0,
+  barcodeBusy: false
+};
 
 const elements = {
   nav: document.querySelector(".segmented-nav"),
@@ -27,6 +42,29 @@ const elements = {
   itemCategory: document.querySelector("#item-category"),
   itemQuantity: document.querySelector("#item-quantity"),
   itemDate: document.querySelector("#item-date"),
+  itemPhoto: document.querySelector("#item-photo"),
+  itemPhotoPreview: document.querySelector("#item-photo-preview"),
+  clearPhoto: document.querySelector("#clear-photo"),
+  scanBarcode: document.querySelector("#scan-barcode"),
+  manualBarcode: document.querySelector("#manual-barcode"),
+  addManualBarcode: document.querySelector("#add-manual-barcode"),
+  barcodeScanner: document.querySelector("#barcode-scanner"),
+  barcodeVideo: document.querySelector("#barcode-video"),
+  barcodeStatus: document.querySelector("#barcode-status"),
+  barcodeScannerStatus: document.querySelector("#barcode-scanner-status"),
+  stopBarcodeScan: document.querySelector("#stop-barcode-scan"),
+  recentScanned: document.querySelector("#recent-scanned"),
+  recentScannedName: document.querySelector("#recent-scanned-name"),
+  recentScannedNameInput: document.querySelector("#recent-scanned-name-input"),
+  recentScannedCategory: document.querySelector("#recent-scanned-category"),
+  recentScannedQuantity: document.querySelector("#recent-scanned-quantity"),
+  recentScannedDate: document.querySelector("#recent-scanned-date"),
+  saveRecentScannedName: document.querySelector("#save-recent-scanned-name"),
+  saveRecentScannedCategory: document.querySelector("#save-recent-scanned-category"),
+  saveRecentScannedQuantity: document.querySelector("#save-recent-scanned-quantity"),
+  saveRecentScannedDate: document.querySelector("#save-recent-scanned-date"),
+  undoRecentScanned: document.querySelector("#undo-recent-scanned"),
+  clearRecentScanned: document.querySelector("#clear-recent-scanned"),
   shoppingForm: document.querySelector("#shopping-form"),
   shoppingName: document.querySelector("#shopping-name"),
   inventory: document.querySelector("#inventory"),
@@ -45,6 +83,11 @@ for (const category of CATEGORIES) {
   option.value = category;
   option.textContent = category;
   elements.itemCategory.append(option);
+
+  const recentOption = document.createElement("option");
+  recentOption.value = category;
+  recentOption.textContent = category;
+  elements.recentScannedCategory.append(recentOption);
 }
 
 elements.nav.addEventListener("click", (event) => {
@@ -83,16 +126,68 @@ elements.placeList.addEventListener("click", (event) => {
   }
 });
 
+elements.itemPhoto.addEventListener("change", async () => {
+  const file = elements.itemPhoto.files?.[0];
+  if (!file) {
+    clearPendingPhoto();
+    return;
+  }
+  if (!file.type.startsWith("image/")) {
+    clearPendingPhoto();
+    announce("Välj en bildfil.", "error");
+    return;
+  }
+  try {
+    state.pendingPhotoDataUrl = await prepareItemPhoto(file);
+    renderPhotoPreview();
+    announce("Bilden är redo att sparas med varan.");
+  } catch {
+    clearPendingPhoto();
+    announce("Bilden kunde inte läsas. Prova en mindre bild.", "error");
+  }
+});
+
+elements.clearPhoto.addEventListener("click", () => {
+  clearPendingPhoto();
+  announce("Bilden togs bort från formuläret.");
+});
+
+elements.scanBarcode.addEventListener("click", startBarcodeScan);
+elements.addManualBarcode.addEventListener("click", addManualBarcode);
+elements.manualBarcode.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  addManualBarcode();
+});
+elements.stopBarcodeScan.addEventListener("click", () => {
+  stopBarcodeScan();
+  announce("Skanningen avbröts.");
+});
+
+elements.saveRecentScannedName.addEventListener("click", saveRecentScannedName);
+elements.saveRecentScannedCategory.addEventListener("click", saveRecentScannedCategory);
+elements.saveRecentScannedQuantity.addEventListener("click", saveRecentScannedQuantity);
+elements.saveRecentScannedDate.addEventListener("click", saveRecentScannedDate);
+elements.undoRecentScanned.addEventListener("click", undoRecentScanned);
+elements.clearRecentScanned.addEventListener("click", () => {
+  state.lastScannedItemId = "";
+  renderRecentScanned();
+});
+
 elements.inventoryForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const result = addItemToActivePlace(state.current, {
     name: elements.itemName.value,
     category: elements.itemCategory.value,
     quantity: elements.itemQuantity.value,
-    date: elements.itemDate.value
+    date: elements.itemDate.value,
+    photoDataUrl: state.pendingPhotoDataUrl
   });
   applyResult(result, result.error || `Sparade ${result.item.name} i ${activePlace(result.state).name}.`);
-  if (!result.error) elements.inventoryForm.reset();
+  if (!result.error) {
+    elements.inventoryForm.reset();
+    clearPendingPhoto();
+  }
 });
 
 elements.shoppingForm.addEventListener("submit", (event) => {
@@ -135,6 +230,8 @@ elements.clearData.addEventListener("click", () => {
   announce("All lokal data rensades och en standardplats skapades.");
 });
 
+window.addEventListener("pagehide", stopBarcodeScan);
+
 render();
 
 function setView(view) {
@@ -160,8 +257,15 @@ function applyResult(result, message) {
     announce(result.error, "error");
     return;
   }
+  const previousState = state.current;
   state.current = result.state;
-  saveState(state.current);
+  try {
+    saveState(state.current);
+  } catch {
+    state.current = previousState;
+    announce("Kunde inte spara lokalt. Bilden kan vara för stor för webbläsarens lagring.", "error");
+    return;
+  }
   render();
   announce(message);
 }
@@ -175,6 +279,7 @@ function render() {
   renderShopping();
   renderPlaces();
   renderAudit();
+  renderRecentScanned();
   setView(state.view);
 }
 
@@ -215,7 +320,7 @@ function renderInventory() {
     table.className = "timeline-table";
     table.innerHTML = `
       <thead>
-        <tr><th>Vara</th><th>Antal</th><th>Datum</th><th>Status</th><th></th></tr>
+        <tr><th>Vara</th><th>Bild</th><th>Antal</th><th>Datum</th><th>Status</th><th></th></tr>
       </thead>
       <tbody></tbody>
     `;
@@ -224,7 +329,8 @@ function renderInventory() {
       const status = itemStatus(item);
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td><span class="row-title"><strong>${escapeHtml(item.name)}</strong><span>${item.category}</span></span></td>
+        <td><span class="row-title"><strong>${escapeHtml(item.name)}</strong><span>${itemMetaMarkup(item)}</span></span></td>
+        <td>${itemPhotoMarkup(item)}</td>
         <td class="amount">${item.quantity}</td>
         <td>${item.date || "Saknas"}</td>
         <td><span class="pill ${status.tone}">${status.label}</span></td>
@@ -245,7 +351,7 @@ function renderSoon() {
     node.className = "month-card";
     node.innerHTML = `
       <div class="month-card__top">
-        <strong>${escapeHtml(item.name)}</strong>
+        <div class="month-card__title">${itemPhotoMarkup(item)}<strong>${escapeHtml(item.name)}</strong></div>
         <span class="pill ${item.status.tone}">${dateText(item.daysLeft)}</span>
       </div>
       <ul>
@@ -331,6 +437,226 @@ function announce(message, tone = "success") {
   elements.feedback.dataset.tone = tone;
 }
 
+function renderPhotoPreview() {
+  elements.itemPhotoPreview.hidden = !state.pendingPhotoDataUrl;
+  elements.clearPhoto.hidden = !state.pendingPhotoDataUrl;
+  elements.itemPhotoPreview.innerHTML = state.pendingPhotoDataUrl
+    ? `<img src="${state.pendingPhotoDataUrl}" alt="Vald varubild" /><span>Bild vald</span>`
+    : "";
+}
+
+async function startBarcodeScan() {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    announce("Kameran kan inte öppnas i den här webbläsaren.", "error");
+    return;
+  }
+  if (!("BarcodeDetector" in window)) {
+    announce("Den här webbläsaren kan inte läsa streckkoder direkt. Prova Chrome eller Edge på mobil.", "error");
+    return;
+  }
+
+  try {
+    stopBarcodeScan();
+    state.barcodeDetector = await createBarcodeDetector();
+    state.barcodeStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: "environment" },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      }
+    });
+    elements.barcodeVideo.srcObject = state.barcodeStream;
+    elements.barcodeScanner.hidden = false;
+    elements.barcodeStatus.textContent = "Kameran är aktiv.";
+    elements.barcodeScannerStatus.textContent = "Rikta kameran mot streckkoden.";
+    await elements.barcodeVideo.play();
+    state.barcodeScanTimer = window.setInterval(scanBarcodeFrame, 350);
+  } catch {
+    stopBarcodeScan();
+    announce("Kunde inte starta kameran. Kontrollera kamerabehörighet och försök igen.", "error");
+  }
+}
+
+async function createBarcodeDetector() {
+  const Detector = window.BarcodeDetector;
+  if (typeof Detector.getSupportedFormats !== "function") return new Detector({ formats: BARCODE_FORMATS });
+  const supported = await Detector.getSupportedFormats();
+  const formats = BARCODE_FORMATS.filter((format) => supported.includes(format));
+  return formats.length > 0 ? new Detector({ formats }) : new Detector();
+}
+
+async function scanBarcodeFrame() {
+  if (state.barcodeBusy || !state.barcodeDetector || !elements.barcodeVideo.videoWidth) return;
+  state.barcodeBusy = true;
+  try {
+    const matches = await state.barcodeDetector.detect(elements.barcodeVideo);
+    const barcode = cleanBarcode(matches[0]?.rawValue);
+    if (barcode) await addScannedBarcode(barcode);
+  } catch {
+    elements.barcodeScannerStatus.textContent = "Kunde inte läsa bilden. Håll streckkoden stilla i rutan.";
+  } finally {
+    state.barcodeBusy = false;
+  }
+}
+
+async function addScannedBarcode(barcode) {
+  stopBarcodeScan();
+  announce(`Streckkod ${barcode} hittad. Slår upp varan...`);
+  elements.barcodeStatus.textContent = `Slår upp ${barcode}...`;
+  const product = await lookupProductByBarcode(barcode);
+  const result = addItemToActivePlace(state.current, {
+    name: product.name,
+    category: product.category,
+    quantity: 1,
+    date: "",
+    barcode,
+    brand: product.brand,
+    productImageUrl: product.imageUrl
+  });
+  const suffix = product.found ? "" : " Produktdata saknades, så streckkoden används som namn.";
+  const message = result.merged ? `Ökade antalet för ${result.item.name} från streckkod.` : `Lade till ${result.item.name} från streckkod.${suffix}`;
+  applyResult(result, result.error || message);
+  elements.barcodeStatus.textContent = "Kamera redo.";
+  if (!result.error) {
+    state.lastScannedItemId = result.item.id;
+    renderRecentScanned();
+  }
+}
+
+async function addManualBarcode() {
+  const barcode = cleanBarcode(elements.manualBarcode.value);
+  if (!barcode) {
+    announce("Ange en giltig streckkod med 6-18 siffror.", "error");
+    return;
+  }
+  elements.manualBarcode.value = "";
+  await addScannedBarcode(barcode);
+}
+
+function stopBarcodeScan() {
+  if (state.barcodeScanTimer) window.clearInterval(state.barcodeScanTimer);
+  state.barcodeScanTimer = 0;
+  state.barcodeBusy = false;
+  if (state.barcodeStream) {
+    for (const track of state.barcodeStream.getTracks()) track.stop();
+  }
+  state.barcodeStream = null;
+  state.barcodeDetector = null;
+  elements.barcodeVideo.srcObject = null;
+  elements.barcodeScanner.hidden = true;
+  elements.barcodeStatus.textContent = "Kamera redo.";
+}
+
+async function lookupProductByBarcode(barcode) {
+  try {
+    const url = `${OPEN_FOOD_FACTS_ENDPOINT}${encodeURIComponent(barcode)}.json?fields=${encodeURIComponent(OPEN_FOOD_FACTS_FIELDS)}`;
+    const response = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error("Lookup failed");
+    const data = await response.json();
+    const product = data?.product;
+    const name = cleanText(product?.product_name_sv || product?.product_name || product?.generic_name || product?.brands);
+    if (data?.status !== 1 || !name) return fallbackBarcodeProduct(barcode);
+    return {
+      found: true,
+      name,
+      brand: cleanText(product?.brands).split(",")[0] || "",
+      category: inferCategory(product),
+      imageUrl: firstValidProductImageUrl(product?.image_front_small_url, product?.image_small_url, product?.image_url)
+    };
+  } catch {
+    return fallbackBarcodeProduct(barcode);
+  }
+}
+
+function fallbackBarcodeProduct(barcode) {
+  return {
+    found: false,
+    name: `Streckkod ${barcode}`,
+    brand: "",
+    category: "Annat",
+    imageUrl: ""
+  };
+}
+
+function firstValidProductImageUrl(...values) {
+  return values.find(validProductImageUrl) || "";
+}
+
+function inferCategory(product) {
+  const categoryText = `${product?.categories_tags?.join(" ") || ""} ${product?.categories || ""}`.toLocaleLowerCase("sv");
+  if (/\bfrozen\b|fryst|frys/.test(categoryText)) return "Frys";
+  if (/dair|milk|yogurt|cheese|meat|fish|fresh|kyld|kyl|mjölk|ost|yoghurt|kött|fisk/.test(categoryText)) return "Kyl";
+  if (/pasta|rice|cereal|flour|bread|canned|jar|oil|snack|dry|skafferi|ris|mjöl|bröd|konserv/.test(categoryText)) return "Skafferi";
+  return "Annat";
+}
+
+function clearPendingPhoto() {
+  state.pendingPhotoDataUrl = "";
+  elements.itemPhoto.value = "";
+  renderPhotoPreview();
+}
+
+async function prepareItemPhoto(file) {
+  const dataUrl = await readFileAsDataUrl(file);
+  const image = await loadImage(dataUrl);
+  const scale = Math.min(1, MAX_PHOTO_SIZE / Math.max(image.naturalWidth, image.naturalHeight));
+  const width = Math.max(1, Math.round(image.naturalWidth * scale));
+  const height = Math.max(1, Math.round(image.naturalHeight * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  context.drawImage(image, 0, 0, width, height);
+  return canvas.toDataURL("image/jpeg", PHOTO_QUALITY);
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => resolve(String(reader.result || "")));
+    reader.addEventListener("error", reject);
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", reject);
+    image.src = src;
+  });
+}
+
+function itemPhotoMarkup(item) {
+  const imageUrl = item.photoDataUrl || item.productImageUrl;
+  return imageUrl
+    ? `<img class="item-photo-thumb" src="${escapeHtml(imageUrl)}" alt="Bild av ${escapeHtml(item.name)}" loading="lazy" />`
+    : '<span class="photo-empty" aria-label="Ingen bild">-</span>';
+}
+
+function itemMetaMarkup(item) {
+  return [item.category, item.brand, item.barcode ? `EAN ${item.barcode}` : ""].filter(Boolean).map(escapeHtml).join(" &middot; ");
+}
+
+function renderRecentScanned() {
+  const item = state.lastScannedItemId ? activePlace().items.find((candidate) => candidate.id === state.lastScannedItemId) : null;
+  elements.recentScanned.hidden = !item;
+  if (!item) {
+    elements.recentScannedName.textContent = "";
+    elements.recentScannedNameInput.value = "";
+    elements.recentScannedCategory.value = "Annat";
+    elements.recentScannedQuantity.value = "";
+    elements.recentScannedDate.value = "";
+    return;
+  }
+  elements.recentScannedName.textContent = item.name;
+  elements.recentScannedNameInput.value = item.name;
+  elements.recentScannedCategory.value = item.category;
+  elements.recentScannedQuantity.value = item.quantity;
+  elements.recentScannedDate.value = item.date || "";
+}
+
 function activePlace(nextState = state.current) {
   return nextState.places.find((place) => place.id === nextState.activePlaceId) || nextState.places[0];
 }
@@ -346,7 +672,7 @@ function updateActivePlace(nextState, updater, auditText, now = new Date()) {
 }
 
 function loadState(storage = window.localStorage) {
-  const stored = storage.getItem(STORAGE_KEY);
+  const stored = storage.getItem(STORAGE_KEY) || LEGACY_STORAGE_KEYS.map((key) => storage.getItem(key)).find(Boolean);
   if (!stored) {
     const initial = createInitialState();
     saveState(initial, storage);
@@ -456,12 +782,46 @@ function renamePlace(nextState, placeId, name, now = new Date()) {
 function addItemToActivePlace(nextState, input, now = new Date()) {
   const name = cleanText(input.name);
   if (!name) return { state: nextState, error: "Ange ett namn på varan." };
+  const barcode = cleanBarcode(input.barcode);
+  const quantity = clampQuantity(input.quantity);
+  if (barcode) {
+    const place = activePlace(nextState);
+    const existingItem = place.items.find((candidate) => candidate.barcode === barcode);
+    if (existingItem) {
+      const nextQuantity = Math.min(99, existingItem.quantity + quantity);
+      const mergedItem = {
+        ...existingItem,
+        quantity: nextQuantity,
+        brand: existingItem.brand || cleanText(input.brand),
+        productImageUrl:
+          existingItem.productImageUrl || (validProductImageUrl(input.productImageUrl) ? input.productImageUrl : ""),
+        photoDataUrl: existingItem.photoDataUrl || (validPhotoDataUrl(input.photoDataUrl) ? input.photoDataUrl : "")
+      };
+      return {
+        state: updateActivePlace(
+          nextState,
+          (candidate) => ({
+            ...candidate,
+            items: candidate.items.map((item) => (item.id === existingItem.id ? mergedItem : item))
+          }),
+          `Ökade ${existingItem.name} till ${nextQuantity}.`,
+          now
+        ),
+        item: mergedItem,
+        merged: true
+      };
+    }
+  }
   const item = {
     id: makeId("item", now),
     name,
     category: CATEGORIES.includes(input.category) ? input.category : "Annat",
-    quantity: clampQuantity(input.quantity),
-    date: validIsoDate(input.date) ? input.date : ""
+    quantity,
+    date: validIsoDate(input.date) ? input.date : "",
+    barcode,
+    brand: cleanText(input.brand),
+    photoDataUrl: validPhotoDataUrl(input.photoDataUrl) ? input.photoDataUrl : "",
+    productImageUrl: validProductImageUrl(input.productImageUrl) ? input.productImageUrl : ""
   };
   return {
     state: updateActivePlace(nextState, (place) => ({ ...place, items: [...place.items, item] }), `Lade till ${item.name}.`, now),
@@ -479,6 +839,137 @@ function markItemUsedInActivePlace(nextState, itemId, now = new Date()) {
       : place.items.filter((candidate) => candidate.id !== itemId);
   const action = item.quantity > 1 ? `Minskade ${item.name} med 1.` : `Markerade ${item.name} som använd.`;
   return { state: updateActivePlace(nextState, (candidate) => ({ ...candidate, items: nextItems }), action, now) };
+}
+
+function saveRecentScannedDate() {
+  if (!state.lastScannedItemId) return;
+  const result = updateItemDateInActivePlace(state.current, state.lastScannedItemId, elements.recentScannedDate.value);
+  applyResult(result, result.error || `Sparade datum för ${result.item.name}.`);
+  if (!result.error) renderRecentScanned();
+}
+
+function saveRecentScannedName() {
+  if (!state.lastScannedItemId) return;
+  const result = updateItemNameInActivePlace(state.current, state.lastScannedItemId, elements.recentScannedNameInput.value);
+  applyResult(result, result.error || `Sparade namn för ${result.item.name}.`);
+  if (!result.error) renderRecentScanned();
+}
+
+function saveRecentScannedCategory() {
+  if (!state.lastScannedItemId) return;
+  const result = updateItemCategoryInActivePlace(state.current, state.lastScannedItemId, elements.recentScannedCategory.value);
+  applyResult(result, result.error || `Sparade kategori för ${result.item.name}.`);
+  if (!result.error) renderRecentScanned();
+}
+
+function saveRecentScannedQuantity() {
+  if (!state.lastScannedItemId) return;
+  const result = updateItemQuantityInActivePlace(state.current, state.lastScannedItemId, elements.recentScannedQuantity.value);
+  applyResult(result, result.error || `Sparade antal för ${result.item.name}.`);
+  if (!result.error) renderRecentScanned();
+}
+
+function undoRecentScanned() {
+  if (!state.lastScannedItemId) return;
+  const result = removeItemUnitInActivePlace(state.current, state.lastScannedItemId);
+  applyResult(result, result.error || "Ångrade senaste skanningen.");
+  if (!result.error) {
+    state.lastScannedItemId = result.removed ? "" : result.item.id;
+    renderRecentScanned();
+  }
+}
+
+function updateItemDateInActivePlace(nextState, itemId, date, now = new Date()) {
+  if (!validIsoDate(date)) return { state: nextState, error: "Ange ett giltigt datum." };
+  const place = activePlace(nextState);
+  const item = place.items.find((candidate) => candidate.id === itemId);
+  if (!item) return { state: nextState, error: "Varan finns inte längre i lagret." };
+  return {
+    state: updateActivePlace(
+      nextState,
+      (candidate) => ({
+        ...candidate,
+        items: candidate.items.map((candidateItem) => (candidateItem.id === itemId ? { ...candidateItem, date } : candidateItem))
+      }),
+      `Satte datum ${date} för ${item.name}.`,
+      now
+    ),
+    item: { ...item, date }
+  };
+}
+
+function updateItemCategoryInActivePlace(nextState, itemId, category, now = new Date()) {
+  if (!CATEGORIES.includes(category)) return { state: nextState, error: "Välj en giltig kategori." };
+  const place = activePlace(nextState);
+  const item = place.items.find((candidate) => candidate.id === itemId);
+  if (!item) return { state: nextState, error: "Varan finns inte längre i lagret." };
+  return {
+    state: updateActivePlace(
+      nextState,
+      (candidate) => ({
+        ...candidate,
+        items: candidate.items.map((candidateItem) => (candidateItem.id === itemId ? { ...candidateItem, category } : candidateItem))
+      }),
+      `Satte kategori ${category} för ${item.name}.`,
+      now
+    ),
+    item: { ...item, category }
+  };
+}
+
+function updateItemNameInActivePlace(nextState, itemId, name, now = new Date()) {
+  const itemName = cleanText(name);
+  if (!itemName) return { state: nextState, error: "Ange ett namn på varan." };
+  const place = activePlace(nextState);
+  const item = place.items.find((candidate) => candidate.id === itemId);
+  if (!item) return { state: nextState, error: "Varan finns inte längre i lagret." };
+  return {
+    state: updateActivePlace(
+      nextState,
+      (candidate) => ({
+        ...candidate,
+        items: candidate.items.map((candidateItem) => (candidateItem.id === itemId ? { ...candidateItem, name: itemName } : candidateItem))
+      }),
+      `Döpte om ${item.name} till ${itemName}.`,
+      now
+    ),
+    item: { ...item, name: itemName }
+  };
+}
+
+function updateItemQuantityInActivePlace(nextState, itemId, quantity, now = new Date()) {
+  const nextQuantity = clampQuantity(quantity);
+  const place = activePlace(nextState);
+  const item = place.items.find((candidate) => candidate.id === itemId);
+  if (!item) return { state: nextState, error: "Varan finns inte längre i lagret." };
+  return {
+    state: updateActivePlace(
+      nextState,
+      (candidate) => ({
+        ...candidate,
+        items: candidate.items.map((candidateItem) => (candidateItem.id === itemId ? { ...candidateItem, quantity: nextQuantity } : candidateItem))
+      }),
+      `Satte antal ${nextQuantity} för ${item.name}.`,
+      now
+    ),
+    item: { ...item, quantity: nextQuantity }
+  };
+}
+
+function removeItemUnitInActivePlace(nextState, itemId, now = new Date()) {
+  const place = activePlace(nextState);
+  const item = place.items.find((candidate) => candidate.id === itemId);
+  if (!item) return { state: nextState, error: "Varan finns inte längre i lagret." };
+  const nextItems =
+    item.quantity > 1
+      ? place.items.map((candidate) => (candidate.id === itemId ? { ...candidate, quantity: candidate.quantity - 1 } : candidate))
+      : place.items.filter((candidate) => candidate.id !== itemId);
+  const action = item.quantity > 1 ? `Ångrade en registrering av ${item.name}.` : `Tog bort ${item.name}.`;
+  return {
+    state: updateActivePlace(nextState, (candidate) => ({ ...candidate, items: nextItems }), action, now),
+    removed: item.quantity <= 1,
+    item: { ...item, quantity: Math.max(0, item.quantity - 1) }
+  };
 }
 
 function addShoppingItemToActivePlace(nextState, input, now = new Date()) {
@@ -577,7 +1068,11 @@ function normalizeItem(item) {
     name,
     category: CATEGORIES.includes(item.category) ? item.category : "Annat",
     quantity: clampQuantity(item.quantity),
-    date: validIsoDate(item.date) ? item.date : ""
+    date: validIsoDate(item.date) ? item.date : "",
+    barcode: cleanBarcode(item.barcode),
+    brand: cleanText(item.brand),
+    photoDataUrl: validPhotoDataUrl(item.photoDataUrl) ? item.photoDataUrl : "",
+    productImageUrl: validProductImageUrl(item.productImageUrl) ? item.productImageUrl : ""
   };
 }
 
@@ -647,6 +1142,24 @@ function cleanText(value) {
 
 function validIsoDate(value) {
   return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(new Date(value).getTime());
+}
+
+function validPhotoDataUrl(value) {
+  return typeof value === "string" && /^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]+$/i.test(value);
+}
+
+function validProductImageUrl(value) {
+  try {
+    const url = new URL(String(value || ""));
+    return url.protocol === "https:" && /(^|\.)openfoodfacts\.(org|net)$/.test(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function cleanBarcode(value) {
+  const barcode = String(value ?? "").trim().replace(/[\s-]/g, "");
+  return /^[0-9]{6,18}$/.test(barcode) ? barcode : "";
 }
 
 function makeId(prefix, now = new Date()) {

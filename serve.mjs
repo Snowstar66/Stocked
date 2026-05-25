@@ -42,7 +42,7 @@ function listen(port) {
   });
 
   server.listen(port, "127.0.0.1", () => {
-    console.log(`MatSvinnskollen körs på http://127.0.0.1:${port}/app/`);
+    console.log(`stocked körs på http://127.0.0.1:${port}/app/`);
     console.log("Avsluta servern med Ctrl+C.");
   });
 }

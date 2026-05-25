@@ -24,6 +24,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   max-width: 100%;
@@ -372,6 +376,10 @@ select:focus-visible {
   gap: 6px;
 }
 
+.field--wide {
+  grid-column: 1 / -1;
+}
+
 .field label {
   color: #31516b;
   font-size: 0.82rem;
@@ -397,6 +405,178 @@ select:focus-visible {
 .field select:hover,
 .inline-create input:hover {
   border-color: #8aa0b5;
+}
+
+.field input[type="file"] {
+  padding: 7px;
+}
+
+.scan-strip {
+  display: grid;
+  grid-template-columns: auto minmax(150px, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  border: 1px solid #bfd8d4;
+  border-radius: 6px;
+  background: #f4fbf9;
+  padding: 8px;
+}
+
+.scan-strip input {
+  min-height: 38px;
+  min-width: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  padding: 8px 10px;
+}
+
+.scan-strip span {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.barcode-scanner {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: #17212f;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.barcode-scanner__view {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #0b1118;
+}
+
+.barcode-scanner video {
+  width: 100%;
+  max-height: 340px;
+  aspect-ratio: 4 / 3;
+  background: #0b1118;
+  object-fit: cover;
+}
+
+.barcode-scanner__target {
+  position: absolute;
+  inset: 24% 11%;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 999px rgba(11, 17, 24, 0.24),
+    0 0 18px rgba(14, 118, 110, 0.28);
+  pointer-events: none;
+}
+
+.barcode-scanner__target::before,
+.barcode-scanner__target::after {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: rgba(14, 118, 110, 0.86);
+  content: "";
+}
+
+.barcode-scanner__target::before {
+  top: 33%;
+}
+
+.barcode-scanner__target::after {
+  bottom: 33%;
+}
+
+.barcode-scanner__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.barcode-scanner__footer span {
+  color: #e8f2f8;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.recent-scanned {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.9fr) minmax(150px, 1.1fr) minmax(120px, 150px) minmax(76px, 92px) minmax(140px, 170px);
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #afcae2;
+  border-radius: 6px;
+  background: #edf6ff;
+  padding: 8px;
+}
+
+.recent-scanned span,
+.recent-scanned strong {
+  display: block;
+}
+
+.recent-scanned span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.recent-scanned strong {
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+
+.recent-scanned input,
+.recent-scanned select {
+  min-height: 38px;
+  min-width: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  padding: 8px 10px;
+}
+
+.recent-scanned .icon-button {
+  min-height: 36px;
+}
+
+.photo-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #f7fafc;
+  padding: 8px;
+}
+
+.photo-preview img,
+.item-photo-thumb {
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  object-fit: cover;
+  background: #fff;
+}
+
+.photo-preview span,
+.photo-empty {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 
 .form-actions {
@@ -479,7 +659,7 @@ select:focus-visible {
 
 .timeline-table {
   width: 100%;
-  min-width: 760px;
+  min-width: 820px;
   border-collapse: collapse;
 }
 
@@ -517,6 +697,23 @@ select:focus-visible {
 .row-title span {
   color: var(--muted);
   font-size: 0.8rem;
+}
+
+.month-card__title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.month-card__title .item-photo-thumb {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+}
+
+.month-card__title .photo-empty {
+  display: none;
 }
 
 .pill {
@@ -912,8 +1109,31 @@ select:focus-visible {
     min-height: 42px;
   }
 
+  .scan-strip,
+  .barcode-scanner__footer {
+    align-items: stretch;
+  }
+
+  .scan-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .barcode-scanner__footer {
+    flex-direction: column;
+  }
+
+  .scan-strip .icon-button,
+  .barcode-scanner__footer .icon-button,
+  .recent-scanned .icon-button {
+    width: 100%;
+  }
+
+  .recent-scanned {
+    grid-template-columns: 1fr;
+  }
+
   .timeline-table {
-    min-width: 620px;
+    min-width: 720px;
   }
 
   .detail-list li,

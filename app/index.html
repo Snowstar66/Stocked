@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Lagerstatus</title>
+    <title>stocked</title>
     <meta name="theme-color" content="#f3f6f8" />
-    <link rel="stylesheet" href="./styles.css?v=places-admin-20260520" />
-    <script src="./app.js?v=places-admin-20260520" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=barcode-scan-20260521" />
+    <script src="./app.js?v=barcode-scan-20260521" defer></script>
   </head>
   <body>
     <main class="app-shell" data-ux-source="CostTracker3-UX-Extract">
-      <header class="topbar" aria-label="Lagerstatus översikt">
+      <header class="topbar" aria-label="stocked översikt">
         <div>
           <span class="eyebrow">Lokal kontrollbild</span>
-          <h1>Lagerstatus</h1>
+          <h1>stocked</h1>
         </div>
 
         <div class="topbar__actions">
@@ -41,12 +41,44 @@
                 <div>
                   <span class="eyebrow">Snabbregistrering</span>
                   <h2 id="quick-entry-title">Bygg dagens lagerbild</h2>
-                  <p>Registrera varor manuellt för den valda platsen.</p>
+                  <p>Registrera varor manuellt eller med streckkod för den valda platsen.</p>
                 </div>
               </div>
 
               <div class="entry-layout">
                 <form id="inventory-form" class="form-grid" aria-label="Lägg till matvara">
+                  <div class="scan-strip field--wide">
+                    <button id="scan-barcode" class="icon-button icon-button--primary" type="button">Skanna streckkod</button>
+                    <input id="manual-barcode" inputmode="numeric" maxlength="18" placeholder="Skriv streckkod" aria-label="Skriv streckkod manuellt" />
+                    <button id="add-manual-barcode" class="icon-button" type="button">Lägg in kod</button>
+                    <span id="barcode-status">Kamera redo.</span>
+                  </div>
+                  <div id="barcode-scanner" class="barcode-scanner field--wide" hidden>
+                    <div class="barcode-scanner__view">
+                      <video id="barcode-video" autoplay muted playsinline></video>
+                      <div class="barcode-scanner__target" aria-hidden="true"></div>
+                    </div>
+                    <div class="barcode-scanner__footer">
+                      <span id="barcode-scanner-status">Rikta kameran mot streckkoden.</span>
+                      <button id="stop-barcode-scan" class="icon-button" type="button">Avbryt</button>
+                    </div>
+                  </div>
+                  <div id="recent-scanned" class="recent-scanned field--wide" hidden>
+                    <div>
+                      <span>Nyss tillagd</span>
+                      <strong id="recent-scanned-name"></strong>
+                    </div>
+                    <input id="recent-scanned-name-input" maxlength="60" aria-label="Namn för nyss tillagd vara" />
+                    <select id="recent-scanned-category" aria-label="Kategori för nyss tillagd vara"></select>
+                    <input id="recent-scanned-quantity" type="number" min="1" max="99" aria-label="Antal för nyss tillagd vara" />
+                    <input id="recent-scanned-date" type="date" aria-label="Bäst före för nyss tillagd vara" />
+                    <button id="save-recent-scanned-name" class="icon-button" type="button">Spara namn</button>
+                    <button id="save-recent-scanned-category" class="icon-button" type="button">Spara kategori</button>
+                    <button id="save-recent-scanned-quantity" class="icon-button" type="button">Spara antal</button>
+                    <button id="save-recent-scanned-date" class="icon-button" type="button">Spara datum</button>
+                    <button id="undo-recent-scanned" class="icon-button danger-action" type="button">Ångra</button>
+                    <button id="clear-recent-scanned" class="icon-button" type="button">Stäng</button>
+                  </div>
                   <div class="field">
                     <label for="item-name">Namn</label>
                     <input id="item-name" required maxlength="60" autocomplete="off" />
@@ -63,7 +95,13 @@
                     <label for="item-date">Bäst före / använd före</label>
                     <input id="item-date" type="date" />
                   </div>
+                  <div class="field field--wide">
+                    <label for="item-photo">Bild</label>
+                    <input id="item-photo" type="file" accept="image/*" capture="environment" />
+                    <div id="item-photo-preview" class="photo-preview" hidden></div>
+                  </div>
                   <div class="form-actions form-actions--left">
+                    <button id="clear-photo" class="icon-button" type="button" hidden>Ta bort bild</button>
                     <button class="icon-button icon-button--primary" type="submit">Spara vara</button>
                   </div>
                 </form>
