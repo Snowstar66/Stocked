@@ -7,6 +7,7 @@ const PHOTO_QUALITY = 0.72;
 const OPEN_FOOD_FACTS_ENDPOINT = "https://world.openfoodfacts.org/api/v2/product/";
 const OPEN_FOOD_FACTS_FIELDS = "product_name,product_name_sv,generic_name,brands,categories,categories_tags,image_front_small_url,image_small_url,image_url";
 const BARCODE_FORMATS = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"];
+const ZXING_BROWSER_URL = "https://unpkg.com/@zxing/browser@0.2.0";
 
 const icons = {
   items:
@@ -26,6 +27,9 @@ const state = {
   lastScannedItemId: "",
   barcodeDetector: null,
   barcodeStream: null,
+  zxingControls: null,
+  zxingReader: null,
+  zxingLoadPromise: null,
   barcodeScanTimer: 0,
   barcodeBusy: false
 };
@@ -450,14 +454,9 @@ async function startBarcodeScan() {
     announce("Kameran kan inte öppnas i den här webbläsaren.", "error");
     return;
   }
-  if (!("BarcodeDetector" in window)) {
-    announce("Den här webbläsaren kan inte läsa streckkoder direkt. Prova Chrome eller Edge på mobil.", "error");
-    return;
-  }
 
   try {
     stopBarcodeScan();
-    state.barcodeDetector = await createBarcodeDetector();
     state.barcodeStream = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: { ideal: "environment" },
@@ -468,9 +467,21 @@ async function startBarcodeScan() {
     elements.barcodeVideo.srcObject = state.barcodeStream;
     elements.barcodeScanner.hidden = false;
     elements.barcodeStatus.textContent = "Kameran är aktiv.";
-    elements.barcodeScannerStatus.textContent = "Rikta kameran mot streckkoden.";
+    elements.barcodeScannerStatus.textContent = "Startar skanning...";
     await elements.barcodeVideo.play();
-    state.barcodeScanTimer = window.setInterval(scanBarcodeFrame, 350);
+
+    if ("BarcodeDetector" in window) {
+      state.barcodeDetector = await createBarcodeDetector();
+      elements.barcodeScannerStatus.textContent = "Rikta kameran mot streckkoden.";
+      state.barcodeScanTimer = window.setInterval(scanBarcodeFrame, 350);
+      return;
+    }
+
+    const fallbackStarted = await startZxingBarcodeScan();
+    if (!fallbackStarted) {
+      elements.barcodeScannerStatus.textContent = "Kameran är aktiv. Skriv koden manuellt om skanningen inte startar.";
+      announce("Kameran är öppen, men automatisk streckkodsläsning kunde inte startas. Du kan skriva koden manuellt.", "error");
+    }
   } catch {
     stopBarcodeScan();
     announce("Kunde inte starta kameran. Kontrollera kamerabehörighet och försök igen.", "error");
@@ -483,6 +494,53 @@ async function createBarcodeDetector() {
   const supported = await Detector.getSupportedFormats();
   const formats = BARCODE_FORMATS.filter((format) => supported.includes(format));
   return formats.length > 0 ? new Detector({ formats }) : new Detector();
+}
+
+async function startZxingBarcodeScan() {
+  const ZXingBrowser = await loadZxingBrowser();
+  if (!ZXingBrowser?.BrowserMultiFormatReader || !state.barcodeStream) return false;
+
+  try {
+    state.zxingReader = new ZXingBrowser.BrowserMultiFormatReader();
+    if (typeof state.zxingReader.decodeFromStream !== "function") return false;
+    elements.barcodeScannerStatus.textContent = "Rikta streckkoden mot rutan.";
+    state.zxingControls = await state.zxingReader.decodeFromStream(state.barcodeStream, elements.barcodeVideo, (result) => {
+      const barcode = cleanBarcode(result?.getText?.() || result?.text);
+      if (!barcode || state.barcodeBusy) return;
+      state.barcodeBusy = true;
+      addScannedBarcode(barcode).finally(() => {
+        state.barcodeBusy = false;
+      });
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function loadZxingBrowser() {
+  if (window.ZXingBrowser) return window.ZXingBrowser;
+  if (!state.zxingLoadPromise) {
+    state.zxingLoadPromise = loadScript(ZXING_BROWSER_URL).then(() => window.ZXingBrowser);
+  }
+  return state.zxingLoadPromise;
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const existing = [...document.scripts].find((script) => script.src === src);
+    if (existing && window.ZXingBrowser) {
+      resolve();
+      return;
+    }
+    const script = existing || document.createElement("script");
+    script.addEventListener("load", resolve, { once: true });
+    script.addEventListener("error", reject, { once: true });
+    if (!existing) {
+      script.src = src;
+      document.head.append(script);
+    }
+  });
 }
 
 async function scanBarcodeFrame() {
@@ -537,11 +595,14 @@ function stopBarcodeScan() {
   if (state.barcodeScanTimer) window.clearInterval(state.barcodeScanTimer);
   state.barcodeScanTimer = 0;
   state.barcodeBusy = false;
+  if (state.zxingControls?.stop) state.zxingControls.stop();
   if (state.barcodeStream) {
     for (const track of state.barcodeStream.getTracks()) track.stop();
   }
   state.barcodeStream = null;
   state.barcodeDetector = null;
+  state.zxingControls = null;
+  state.zxingReader = null;
   elements.barcodeVideo.srcObject = null;
   elements.barcodeScanner.hidden = true;
   elements.barcodeStatus.textContent = "Kamera redo.";
