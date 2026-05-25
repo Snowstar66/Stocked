@@ -989,8 +989,7 @@ select:focus-visible {
 }
 
 .month-card,
-.row-card,
-.suggestion {
+.row-card {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
@@ -1032,14 +1031,11 @@ select:focus-visible {
   font-size: 0.78rem;
 }
 
-.row-card strong,
-.suggestion strong {
+.row-card strong {
   display: block;
 }
 
-.row-card span,
-.suggestion span,
-.suggestion small {
+.row-card span {
   display: block;
   margin-top: 4px;
   color: var(--muted);

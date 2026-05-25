@@ -332,27 +332,6 @@ export function itemStatus(item, today = new Date()) {
   return { label: "Lugnt läge", tone: "neutral" };
 }
 
-export function generateSuggestions(items, today = new Date()) {
-  const soon = soonItems(items, today, 14);
-  const pantry = items.filter((item) => item.category === "Skafferi");
-  const freezer = items.filter((item) => item.category === "Frys");
-  const base = soon.length > 0 ? soon : items;
-  return base.slice(0, 4).map((priorityItem) => {
-    const support = [pantry.find((item) => item.id !== priorityItem.id), freezer.find((item) => item.id !== priorityItem.id)]
-      .filter(Boolean)
-      .slice(0, 2);
-    const names = [priorityItem, ...support].map((item) => item.name);
-    return {
-      id: `suggestion-${priorityItem.id}`,
-      title: suggestionTitle(priorityItem),
-      items: names,
-      reason: priorityItem.date
-        ? `${priorityItem.name} har ett närliggande planeringsdatum.`
-        : `${priorityItem.name} finns redan hemma och kan användas först.`
-    };
-  });
-}
-
 export function daysBetween(today, isoDate) {
   const start = new Date(toIsoDate(today));
   const end = new Date(isoDate);
@@ -428,13 +407,6 @@ function namesMatch(a, b) {
   const left = cleanText(a).toLocaleLowerCase("sv");
   const right = cleanText(b).toLocaleLowerCase("sv");
   return left === right || left.includes(right) || right.includes(left);
-}
-
-function suggestionTitle(item) {
-  if (item.category === "Kyl") return `Snabb vardagsrätt med ${item.name}`;
-  if (item.category === "Frys") return `Tina och bygg middag kring ${item.name}`;
-  if (item.category === "Skafferi") return `Basrätt där ${item.name} får bära måltiden`;
-  return `Enkel måltidsidé med ${item.name}`;
 }
 
 function clampQuantity(quantity) {

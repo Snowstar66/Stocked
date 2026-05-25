@@ -89,7 +89,6 @@ const elements = {
   shoppingName: document.querySelector("#shopping-name"),
   inventory: document.querySelector("#inventory"),
   soon: document.querySelector("#soon"),
-  suggestions: document.querySelector("#suggestions"),
   shopping: document.querySelector("#shopping"),
   audit: document.querySelector("#audit"),
   summary: document.querySelector("#summary"),
@@ -328,7 +327,6 @@ function render() {
   renderSummary();
   renderInventory();
   renderSoon();
-  renderSuggestions();
   renderShopping();
   renderPlaces();
   renderAudit();
@@ -422,21 +420,6 @@ function renderSoon() {
       </ul>
     `;
     elements.soon.append(node);
-  }
-}
-
-function renderSuggestions() {
-  const suggestions = generateSuggestions(activePlace().items);
-  elements.suggestions.innerHTML = emptyMessage(suggestions.length, "Lägg till några varor för måltidsidéer.");
-  for (const suggestion of suggestions) {
-    const node = document.createElement("article");
-    node.className = "data-card suggestion";
-    node.innerHTML = `
-      <strong>${escapeHtml(suggestion.title)}</strong>
-      <span>${suggestion.items.map(escapeHtml).join(" + ")}</span>
-      <small>${escapeHtml(suggestion.reason)} Inte ett livsmedelssäkerhetsråd.</small>
-    `;
-    elements.suggestions.append(node);
   }
 }
 
@@ -1305,27 +1288,6 @@ function itemStatus(item, today = new Date()) {
   return { label: "Lugnt läge", tone: "neutral" };
 }
 
-function generateSuggestions(items, today = new Date()) {
-  const priorityItems = soonItems(items, today, 14);
-  const base = priorityItems.length > 0 ? priorityItems : items;
-  const pantry = items.filter((item) => item.category === "Skafferi");
-  const freezer = items.filter((item) => item.category === "Frys");
-  return base.slice(0, 4).map((priorityItem) => {
-    const support = [pantry.find((item) => item.id !== priorityItem.id), freezer.find((item) => item.id !== priorityItem.id)]
-      .filter(Boolean)
-      .slice(0, 2);
-    const names = [priorityItem, ...support].map((item) => item.name);
-    return {
-      id: `suggestion-${priorityItem.id}`,
-      title: suggestionTitle(priorityItem),
-      items: names,
-      reason: priorityItem.date
-        ? `${priorityItem.name} har ett närliggande planeringsdatum.`
-        : `${priorityItem.name} finns redan på den valda platsen och kan användas först.`
-    };
-  });
-}
-
 function normalizeItem(item) {
   const name = cleanText(item?.name);
   if (!name) return null;
@@ -1364,13 +1326,6 @@ function namesMatch(a, b) {
   const left = cleanText(a).toLocaleLowerCase("sv");
   const right = cleanText(b).toLocaleLowerCase("sv");
   return left === right || left.includes(right) || right.includes(left);
-}
-
-function suggestionTitle(item) {
-  if (item.category === "Kyl") return `Snabb vardagsrätt med ${item.name}`;
-  if (item.category === "Frys") return `Tina och bygg middag kring ${item.name}`;
-  if (item.category === "Skafferi") return `Basrätt där ${item.name} får bära måltiden`;
-  return `Enkel måltidsidé med ${item.name}`;
 }
 
 function dateText(daysLeft) {

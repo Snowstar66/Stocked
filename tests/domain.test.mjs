@@ -6,7 +6,6 @@ import {
   addShoppingItem,
   clearAllData,
   createInitialState,
-  generateSuggestions,
   groupItemsByCategory,
   LEGACY_STORAGE_KEYS,
   loadState,
@@ -231,7 +230,6 @@ const today = new Date("2026-05-19T08:00:00.000Z");
 
 {
   const state = createInitialState(today);
-  assert.ok(generateSuggestions(activePlace(state).items, today).length > 0);
   const cleared = clearAllData(today);
   assert.equal(cleared.places.length, 1);
   assert.equal(activePlace(cleared).name, "Hem");
