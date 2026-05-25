@@ -55,6 +55,7 @@ const elements = {
   itemPhotoPreview: document.querySelector("#item-photo-preview"),
   clearPhoto: document.querySelector("#clear-photo"),
   scanBarcode: document.querySelector("#scan-barcode"),
+  showManualEntry: document.querySelector("#show-manual-entry"),
   barcodeScanner: document.querySelector("#barcode-scanner"),
   barcodeVideo: document.querySelector("#barcode-video"),
   barcodeStatus: document.querySelector("#barcode-status"),
@@ -169,6 +170,7 @@ elements.clearPhoto.addEventListener("click", () => {
 });
 
 elements.scanBarcode.addEventListener("click", startBarcodeScan);
+elements.showManualEntry.addEventListener("click", showManualEntry);
 elements.stopBarcodeScan.addEventListener("click", () => {
   stopBarcodeScan();
   announce("Skanningen stängdes.");
@@ -260,7 +262,7 @@ function setView(view) {
   for (const panel of elements.viewPanels) {
     panel.classList.toggle("is-active", panel.dataset.viewPanel === view);
   }
-  elements.summary.hidden = view === "admin";
+  elements.summary.hidden = view === "admin" || view === "overview";
 }
 
 function handleUseItemClick(event) {
@@ -502,6 +504,7 @@ async function startBarcodeScan() {
     elements.barcodeVideo.srcObject = state.barcodeStream;
     elements.barcodeScanner.hidden = false;
     elements.inventoryForm.classList.add("is-scanning");
+    elements.inventoryForm.classList.remove("is-manual");
     state.scanReceipt = [];
     state.unknownScannedItemId = "";
     clearScanResult();
@@ -528,6 +531,12 @@ async function startBarcodeScan() {
     stopBarcodeScan();
     announce("Kunde inte starta kameran. Kontrollera kamerabehörighet och försök igen.", "error");
   }
+}
+
+function showManualEntry() {
+  stopBarcodeScan();
+  elements.inventoryForm.classList.add("is-manual");
+  elements.itemName.focus();
 }
 
 async function createBarcodeDetector() {

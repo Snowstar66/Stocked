@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>stocked</title>
     <meta name="theme-color" content="#f3f6f8" />
-    <link rel="stylesheet" href="/app/styles.css?v=stocked-shopping-to-inventory-20260525" />
-    <script src="/app/app.js?v=stocked-shopping-to-inventory-20260525" defer></script>
+    <link rel="stylesheet" href="/app/styles.css?v=stocked-add-actions-20260525" />
+    <script src="/app/app.js?v=stocked-add-actions-20260525" defer></script>
   </head>
   <body>
     <main class="app-shell" data-ux-source="CostTracker3-UX-Extract">
@@ -47,9 +47,18 @@
 
               <div class="entry-layout">
                 <form id="inventory-form" class="form-grid" aria-label="Lägg till matvara">
-                  <div class="scan-strip field--wide">
-                    <button id="scan-barcode" class="icon-button icon-button--primary" type="button">Skanna streckkod</button>
-                    <span id="barcode-status">Kamera redo.</span>
+                  <div class="entry-actions field--wide">
+                    <button id="scan-barcode" class="entry-action" type="button">
+                      <span class="entry-action__symbol entry-action__symbol--scan" aria-hidden="true"></span>
+                      <strong>Skanna</strong>
+                      <small>Öppna kameran och lägg till flera varor i följd.</small>
+                    </button>
+                    <button id="show-manual-entry" class="entry-action" type="button">
+                      <span class="entry-action__symbol entry-action__symbol--manual" aria-hidden="true"></span>
+                      <strong>Registrera</strong>
+                      <small>Skriv in en vara själv när streckkod saknas.</small>
+                    </button>
+                    <span id="barcode-status" class="entry-status">Kamera redo.</span>
                   </div>
                   <div id="barcode-scanner" class="barcode-scanner field--wide" hidden>
                     <div class="barcode-scanner__view">
@@ -99,23 +108,23 @@
                     <button id="undo-recent-scanned" class="icon-button danger-action" type="button">Ångra</button>
                     <button id="clear-recent-scanned" class="icon-button" type="button">Stäng</button>
                   </div>
-                  <div class="field">
+                  <div class="field manual-field">
                     <label for="item-name">Namn</label>
                     <input id="item-name" required maxlength="60" autocomplete="off" />
                   </div>
-                  <div class="field">
+                  <div class="field manual-field">
                     <label for="item-category">Kategori</label>
                     <select id="item-category"></select>
                   </div>
-                  <div class="field">
+                  <div class="field manual-field">
                     <label for="item-quantity">Antal</label>
                     <input id="item-quantity" type="number" min="1" max="99" value="1" />
                   </div>
-                  <div class="field">
+                  <div class="field manual-field">
                     <label for="item-date">Bäst före / använd före</label>
                     <input id="item-date" type="date" />
                   </div>
-                  <div class="field field--wide">
+                  <div class="field field--wide manual-field">
                     <label for="item-photo">Bild</label>
                     <input id="item-photo" type="file" accept="image/*" capture="environment" />
                     <div id="item-photo-preview" class="photo-preview" hidden></div>
