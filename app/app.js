@@ -82,7 +82,6 @@ const elements = {
   saveRecentScannedName: document.querySelector("#save-recent-scanned-name"),
   saveRecentScannedCategory: document.querySelector("#save-recent-scanned-category"),
   saveRecentScannedQuantity: document.querySelector("#save-recent-scanned-quantity"),
-  saveRecentScannedDate: document.querySelector("#save-recent-scanned-date"),
   undoRecentScanned: document.querySelector("#undo-recent-scanned"),
   clearRecentScanned: document.querySelector("#clear-recent-scanned"),
   shoppingForm: document.querySelector("#shopping-form"),
@@ -186,7 +185,7 @@ elements.stopBarcodeScan.addEventListener("click", () => {
 elements.saveRecentScannedName.addEventListener("click", saveRecentScannedName);
 elements.saveRecentScannedCategory.addEventListener("click", saveRecentScannedCategory);
 elements.saveRecentScannedQuantity.addEventListener("click", saveRecentScannedQuantity);
-elements.saveRecentScannedDate.addEventListener("click", saveRecentScannedDate);
+elements.recentScannedDate.addEventListener("change", saveRecentScannedDate);
 elements.undoRecentScanned.addEventListener("click", undoRecentScanned);
 elements.clearRecentScanned.addEventListener("click", () => {
   state.lastScannedItemId = "";
@@ -394,7 +393,7 @@ function renderInventory() {
             <input type="date" value="${escapeHtml(item.date)}" data-item-date="${item.id}" aria-label="Bäst före för ${escapeHtml(item.name)}" />
           </div>
         </td>
-        <td><span class="pill ${status.tone}">${status.label}</span></td>
+        <td>${item.date ? `<span class="pill ${status.tone}">${status.label}</span>` : ""}</td>
         <td><button class="icon-button icon-button--square danger-action" data-use-item="${item.id}" title="Ta bort en" aria-label="Ta bort en ${escapeHtml(item.name)}">🗑</button></td>
       `;
       body.append(row);
