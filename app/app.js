@@ -215,6 +215,7 @@ elements.shoppingForm.addEventListener("submit", (event) => {
 
 elements.inventory.addEventListener("click", handleUseItemClick);
 elements.soon.addEventListener("click", handleUseItemClick);
+elements.inventory.addEventListener("change", handleInventoryChange);
 
 elements.shopping.addEventListener("click", (event) => {
   const toggleButton = event.target.closest("[data-toggle-shop]");
@@ -280,19 +281,17 @@ function handleUseItemClick(event) {
     return;
   }
 
-  const saveDateButton = event.target.closest("[data-save-item-date]");
-  if (saveDateButton) {
-    const itemId = saveDateButton.dataset.saveItemDate;
-    const input = [...elements.inventory.querySelectorAll("[data-item-date]")].find((candidate) => candidate.dataset.itemDate === itemId);
-    const result = updateItemDateInActivePlace(state.current, itemId, input?.value);
-    applyResult(result, result.error || `Sparade datum för ${result.item.name}.`);
-    return;
-  }
-
   const button = event.target.closest("[data-use-item]");
   if (!button) return;
   const result = markItemUsedInActivePlace(state.current, button.dataset.useItem);
   applyResult(result, result.error || "Varan togs bort från lagret.");
+}
+
+function handleInventoryChange(event) {
+  const input = event.target.closest("[data-item-date]");
+  if (!input) return;
+  const result = updateItemDateInActivePlace(state.current, input.dataset.itemDate, input.value);
+  applyResult(result, result.error || `Sparade datum för ${result.item.name}.`);
 }
 
 function applyResult(result, message) {
@@ -384,7 +383,6 @@ function renderInventory() {
         <td data-label="Datum">
           <div class="date-edit">
             <input type="date" value="${escapeHtml(item.date)}" data-item-date="${item.id}" aria-label="Bäst före för ${escapeHtml(item.name)}" />
-            <button class="icon-button icon-button--square" data-save-item-date="${item.id}" type="button" title="Spara datum" aria-label="Spara datum för ${escapeHtml(item.name)}">💾</button>
           </div>
         </td>
         <td><span class="pill ${status.tone}">${status.label}</span></td>

@@ -861,16 +861,13 @@ select:focus-visible {
 
 .date-edit input {
   min-height: 34px;
-  min-width: 128px;
+  min-width: 0;
+  width: 100%;
   border: 1px solid var(--line-strong);
   border-radius: 6px;
   background: #fff;
   color: var(--ink);
   padding: 6px 8px;
-}
-
-.date-edit .icon-button {
-  min-height: 34px;
 }
 
 .quantity-stepper {
@@ -1406,8 +1403,7 @@ select:focus-visible {
   }
 
   .timeline-table .date-edit {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 34px;
+    display: block;
     width: 100%;
   }
 
@@ -1440,7 +1436,7 @@ select:focus-visible {
     height: 38px;
   }
 
-  .timeline-table .icon-button--square {
+  .timeline-table td:nth-child(6) .icon-button--square {
     width: 34px;
     min-width: 34px;
     min-height: 34px;
