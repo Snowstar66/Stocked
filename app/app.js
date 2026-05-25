@@ -875,7 +875,7 @@ function itemPhotoMarkup(item) {
 }
 
 function itemMetaMarkup(item) {
-  return [item.category, item.brand, item.barcode ? `EAN ${item.barcode}` : ""].filter(Boolean).map(escapeHtml).join(" &middot; ");
+  return [item.category, item.brand].filter(Boolean).map(escapeHtml).join(" &middot; ");
 }
 
 function renderRecentScanned() {

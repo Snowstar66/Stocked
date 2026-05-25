@@ -1569,4 +1569,35 @@ select:focus-visible {
     height: 28px;
     flex-basis: 28px;
   }
+
+  .timeline-table tr {
+    grid-template-columns: 38px minmax(0, 1fr) 34px;
+  }
+
+  .timeline-table td:nth-child(1) {
+    grid-column: 2 / 3;
+  }
+
+  .timeline-table td:nth-child(2) {
+    grid-row: 1 / span 2;
+  }
+
+  .timeline-table td:nth-child(3) {
+    grid-column: 2 / 3;
+    grid-row: 2;
+  }
+
+  .timeline-table td:nth-child(4) {
+    grid-column: 1 / 4;
+    grid-row: 3;
+  }
+
+  .timeline-table td:nth-child(5) {
+    grid-column: 1 / 4;
+    grid-row: 4;
+  }
+
+  .timeline-table td:nth-child(6) {
+    grid-column: 3 / 4;
+  }
 }
