@@ -757,50 +757,6 @@ select:focus-visible {
   padding: 8px 10px;
 }
 
-.recent-scanned {
-  display: grid;
-  grid-template-columns: minmax(120px, 0.9fr) minmax(150px, 1.1fr) minmax(120px, 150px) minmax(76px, 92px) minmax(140px, 170px);
-  align-items: center;
-  gap: 10px;
-  border: 1px solid #afcae2;
-  border-radius: 6px;
-  background: #edf6ff;
-  padding: 8px;
-}
-
-.recent-scanned span,
-.recent-scanned strong {
-  display: block;
-}
-
-.recent-scanned span {
-  color: var(--muted);
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.recent-scanned strong {
-  margin-top: 2px;
-  overflow-wrap: anywhere;
-}
-
-.recent-scanned input,
-.recent-scanned select {
-  min-height: 38px;
-  min-width: 0;
-  border: 1px solid var(--line-strong);
-  border-radius: 6px;
-  background: #fff;
-  color: var(--ink);
-  padding: 8px 10px;
-}
-
-.recent-scanned .icon-button {
-  min-height: 36px;
-}
-
 .photo-preview {
   display: flex;
   align-items: center;
@@ -1422,13 +1378,8 @@ select:focus-visible {
     grid-template-columns: 1fr;
   }
 
-  .barcode-scanner__footer .icon-button,
-  .recent-scanned .icon-button {
+  .barcode-scanner__footer .icon-button {
     width: 100%;
-  }
-
-  .recent-scanned {
-    grid-template-columns: 1fr;
   }
 
   .timeline-wrap {

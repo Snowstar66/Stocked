@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>stocked</title>
     <meta name="theme-color" content="#f3f6f8" />
-    <link rel="stylesheet" href="/app/styles.css?v=stocked-trash-icon-20260525" />
-    <script src="/app/app.js?v=stocked-trash-icon-20260525" defer></script>
+    <link rel="stylesheet" href="/app/styles.css?v=stocked-manual-recent-fix-20260525" />
+    <script src="/app/app.js?v=stocked-manual-recent-fix-20260525" defer></script>
   </head>
   <body>
     <main class="app-shell" data-ux-source="CostTracker3-UX-Extract">
@@ -92,21 +92,6 @@
                       <span id="barcode-scanner-status">Rikta kameran mot streckkoden.</span>
                       <button id="stop-barcode-scan" class="icon-button" type="button">Stäng</button>
                     </div>
-                  </div>
-                  <div id="recent-scanned" class="recent-scanned field--wide" hidden>
-                    <div>
-                      <span>Nyss tillagd</span>
-                      <strong id="recent-scanned-name"></strong>
-                    </div>
-                    <input id="recent-scanned-name-input" maxlength="60" aria-label="Namn för nyss tillagd vara" />
-                    <select id="recent-scanned-category" aria-label="Kategori för nyss tillagd vara"></select>
-                    <input id="recent-scanned-quantity" type="number" min="1" max="99" aria-label="Antal för nyss tillagd vara" />
-                    <input id="recent-scanned-date" type="date" aria-label="Bäst före för nyss tillagd vara" />
-                    <button id="save-recent-scanned-name" class="icon-button" type="button">Spara namn</button>
-                    <button id="save-recent-scanned-category" class="icon-button" type="button">Spara kategori</button>
-                    <button id="save-recent-scanned-quantity" class="icon-button" type="button">Spara antal</button>
-                    <button id="undo-recent-scanned" class="icon-button danger-action" type="button">Ångra</button>
-                    <button id="clear-recent-scanned" class="icon-button" type="button">Stäng</button>
                   </div>
                   <div class="field manual-field">
                     <label for="item-name">Namn</label>

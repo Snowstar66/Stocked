@@ -25,7 +25,6 @@ const state = {
   current: loadState(),
   view: "overview",
   pendingPhotoDataUrl: "",
-  lastScannedItemId: "",
   barcodeDetector: null,
   barcodeStream: null,
   zxingControls: null,
@@ -72,17 +71,6 @@ const elements = {
   unknownProductBarcode: document.querySelector("#unknown-product-barcode"),
   unknownProductName: document.querySelector("#unknown-product-name"),
   saveUnknownProductName: document.querySelector("#save-unknown-product-name"),
-  recentScanned: document.querySelector("#recent-scanned"),
-  recentScannedName: document.querySelector("#recent-scanned-name"),
-  recentScannedNameInput: document.querySelector("#recent-scanned-name-input"),
-  recentScannedCategory: document.querySelector("#recent-scanned-category"),
-  recentScannedQuantity: document.querySelector("#recent-scanned-quantity"),
-  recentScannedDate: document.querySelector("#recent-scanned-date"),
-  saveRecentScannedName: document.querySelector("#save-recent-scanned-name"),
-  saveRecentScannedCategory: document.querySelector("#save-recent-scanned-category"),
-  saveRecentScannedQuantity: document.querySelector("#save-recent-scanned-quantity"),
-  undoRecentScanned: document.querySelector("#undo-recent-scanned"),
-  clearRecentScanned: document.querySelector("#clear-recent-scanned"),
   shoppingForm: document.querySelector("#shopping-form"),
   shoppingName: document.querySelector("#shopping-name"),
   inventory: document.querySelector("#inventory"),
@@ -100,11 +88,6 @@ for (const category of CATEGORIES) {
   option.value = category;
   option.textContent = category;
   elements.itemCategory.append(option);
-
-  const recentOption = document.createElement("option");
-  recentOption.value = category;
-  recentOption.textContent = category;
-  elements.recentScannedCategory.append(recentOption);
 }
 
 elements.nav.addEventListener("click", (event) => {
@@ -176,15 +159,6 @@ elements.stopBarcodeScan.addEventListener("click", () => {
   announce("Skanningen stängdes.");
 });
 
-elements.saveRecentScannedName.addEventListener("click", saveRecentScannedName);
-elements.saveRecentScannedCategory.addEventListener("click", saveRecentScannedCategory);
-elements.saveRecentScannedQuantity.addEventListener("click", saveRecentScannedQuantity);
-elements.recentScannedDate.addEventListener("change", saveRecentScannedDate);
-elements.undoRecentScanned.addEventListener("click", undoRecentScanned);
-elements.clearRecentScanned.addEventListener("click", () => {
-  state.lastScannedItemId = "";
-  renderRecentScanned();
-});
 elements.saveUnknownProductName.addEventListener("click", saveUnknownProductName);
 elements.unknownProductName.addEventListener("keydown", (event) => {
   if (event.key !== "Enter") return;
@@ -324,7 +298,6 @@ function render() {
   renderShopping();
   renderPlaces();
   renderAudit();
-  renderRecentScanned();
   setView(state.view);
 }
 
@@ -628,12 +601,10 @@ async function addScannedBarcode(barcode) {
   const message = result.merged ? `Ökade antalet för ${result.item.name} från streckkod.` : `Lade till ${result.item.name} från streckkod.${suffix}`;
   applyResult(result, result.error || message);
   if (!result.error) {
-    state.lastScannedItemId = result.item.id;
     state.unknownScannedItemId = product.found ? state.unknownScannedItemId : result.item.id;
     playScanBeep();
     addScanReceiptItem(result, product, barcode);
     renderScanResult(result, product, barcode);
-    renderRecentScanned();
     elements.barcodeStatus.textContent = "Tillagd. Redo för nästa vara.";
     elements.barcodeScannerStatus.textContent = "Tillagd. Rikta kameran mot nästa streckkod.";
     renderUnknownProductPrompt(barcode);
@@ -890,25 +861,6 @@ function trashIconMarkup() {
   `;
 }
 
-function renderRecentScanned() {
-  const item =
-    !state.barcodeStream && state.lastScannedItemId ? activePlace().items.find((candidate) => candidate.id === state.lastScannedItemId) : null;
-  elements.recentScanned.hidden = !item;
-  if (!item) {
-    elements.recentScannedName.textContent = "";
-    elements.recentScannedNameInput.value = "";
-    elements.recentScannedCategory.value = "Annat";
-    elements.recentScannedQuantity.value = "";
-    elements.recentScannedDate.value = "";
-    return;
-  }
-  elements.recentScannedName.textContent = item.name;
-  elements.recentScannedNameInput.value = item.name;
-  elements.recentScannedCategory.value = item.category;
-  elements.recentScannedQuantity.value = item.quantity;
-  elements.recentScannedDate.value = item.date || "";
-}
-
 function activePlace(nextState = state.current) {
   return nextState.places.find((place) => place.id === nextState.activePlaceId) || nextState.places[0];
 }
@@ -1091,44 +1043,6 @@ function markItemUsedInActivePlace(nextState, itemId, now = new Date()) {
       : place.items.filter((candidate) => candidate.id !== itemId);
   const action = item.quantity > 1 ? `Minskade ${item.name} med 1.` : `Markerade ${item.name} som använd.`;
   return { state: updateActivePlace(nextState, (candidate) => ({ ...candidate, items: nextItems }), action, now) };
-}
-
-function saveRecentScannedDate() {
-  if (!state.lastScannedItemId) return;
-  const result = updateItemDateInActivePlace(state.current, state.lastScannedItemId, elements.recentScannedDate.value);
-  applyResult(result, result.error || `Sparade datum för ${result.item.name}.`);
-  if (!result.error) renderRecentScanned();
-}
-
-function saveRecentScannedName() {
-  if (!state.lastScannedItemId) return;
-  const result = updateItemNameInActivePlace(state.current, state.lastScannedItemId, elements.recentScannedNameInput.value);
-  applyResult(result, result.error || `Sparade namn för ${result.item.name}.`);
-  if (!result.error) renderRecentScanned();
-}
-
-function saveRecentScannedCategory() {
-  if (!state.lastScannedItemId) return;
-  const result = updateItemCategoryInActivePlace(state.current, state.lastScannedItemId, elements.recentScannedCategory.value);
-  applyResult(result, result.error || `Sparade kategori för ${result.item.name}.`);
-  if (!result.error) renderRecentScanned();
-}
-
-function saveRecentScannedQuantity() {
-  if (!state.lastScannedItemId) return;
-  const result = updateItemQuantityInActivePlace(state.current, state.lastScannedItemId, elements.recentScannedQuantity.value);
-  applyResult(result, result.error || `Sparade antal för ${result.item.name}.`);
-  if (!result.error) renderRecentScanned();
-}
-
-function undoRecentScanned() {
-  if (!state.lastScannedItemId) return;
-  const result = removeItemUnitInActivePlace(state.current, state.lastScannedItemId);
-  applyResult(result, result.error || "Ångrade senaste skanningen.");
-  if (!result.error) {
-    state.lastScannedItemId = result.removed ? "" : result.item.id;
-    renderRecentScanned();
-  }
 }
 
 function updateItemDateInActivePlace(nextState, itemId, date, now = new Date()) {
