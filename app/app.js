@@ -8,6 +8,7 @@ const OPEN_FOOD_FACTS_ENDPOINT = "https://world.openfoodfacts.org/api/v2/product
 const OPEN_FOOD_FACTS_FIELDS = "product_name,product_name_sv,generic_name,brands,categories,categories_tags,image_front_small_url,image_small_url,image_url";
 const BARCODE_FORMATS = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"];
 const ZXING_BROWSER_URL = "https://unpkg.com/@zxing/browser@0.2.0";
+const SCAN_COOLDOWN_MS = 1800;
 
 const icons = {
   items:
@@ -30,6 +31,7 @@ const state = {
   zxingControls: null,
   zxingReader: null,
   zxingLoadPromise: null,
+  recentBarcodeScans: {},
   barcodeScanTimer: 0,
   barcodeBusy: false
 };
@@ -57,6 +59,10 @@ const elements = {
   barcodeStatus: document.querySelector("#barcode-status"),
   barcodeScannerStatus: document.querySelector("#barcode-scanner-status"),
   stopBarcodeScan: document.querySelector("#stop-barcode-scan"),
+  scanResult: document.querySelector("#scan-result"),
+  scanResultImage: document.querySelector("#scan-result-image"),
+  scanResultTitle: document.querySelector("#scan-result-title"),
+  scanResultMeta: document.querySelector("#scan-result-meta"),
   recentScanned: document.querySelector("#recent-scanned"),
   recentScannedName: document.querySelector("#recent-scanned-name"),
   recentScannedNameInput: document.querySelector("#recent-scanned-name-input"),
@@ -466,6 +472,7 @@ async function startBarcodeScan() {
     });
     elements.barcodeVideo.srcObject = state.barcodeStream;
     elements.barcodeScanner.hidden = false;
+    clearScanResult();
     elements.barcodeStatus.textContent = "Kameran är aktiv.";
     elements.barcodeScannerStatus.textContent = "Startar skanning...";
     await elements.barcodeVideo.play();
@@ -506,7 +513,7 @@ async function startZxingBarcodeScan() {
     elements.barcodeScannerStatus.textContent = "Rikta streckkoden mot rutan.";
     state.zxingControls = await state.zxingReader.decodeFromStream(state.barcodeStream, elements.barcodeVideo, (result) => {
       const barcode = cleanBarcode(result?.getText?.() || result?.text);
-      if (!barcode || state.barcodeBusy) return;
+      if (!barcode || state.barcodeBusy || barcodeInCooldown(barcode)) return;
       state.barcodeBusy = true;
       addScannedBarcode(barcode).finally(() => {
         state.barcodeBusy = false;
@@ -549,7 +556,7 @@ async function scanBarcodeFrame() {
   try {
     const matches = await state.barcodeDetector.detect(elements.barcodeVideo);
     const barcode = cleanBarcode(matches[0]?.rawValue);
-    if (barcode) await addScannedBarcode(barcode);
+    if (barcode && !barcodeInCooldown(barcode)) await addScannedBarcode(barcode);
   } catch {
     elements.barcodeScannerStatus.textContent = "Kunde inte läsa bilden. Håll streckkoden stilla i rutan.";
   } finally {
@@ -558,9 +565,10 @@ async function scanBarcodeFrame() {
 }
 
 async function addScannedBarcode(barcode) {
-  stopBarcodeScan();
+  markBarcodeScan(barcode);
   announce(`Streckkod ${barcode} hittad. Slår upp varan...`);
   elements.barcodeStatus.textContent = `Slår upp ${barcode}...`;
+  elements.barcodeScannerStatus.textContent = "Hittad. Lägger till varan...";
   const product = await lookupProductByBarcode(barcode);
   const result = addItemToActivePlace(state.current, {
     name: product.name,
@@ -574,11 +582,43 @@ async function addScannedBarcode(barcode) {
   const suffix = product.found ? "" : " Produktdata saknades, så streckkoden används som namn.";
   const message = result.merged ? `Ökade antalet för ${result.item.name} från streckkod.` : `Lade till ${result.item.name} från streckkod.${suffix}`;
   applyResult(result, result.error || message);
-  elements.barcodeStatus.textContent = "Kamera redo.";
   if (!result.error) {
     state.lastScannedItemId = result.item.id;
+    renderScanResult(result, product, barcode);
     renderRecentScanned();
+    elements.barcodeStatus.textContent = "Tillagd. Redo för nästa vara.";
+    elements.barcodeScannerStatus.textContent = "Tillagd. Rikta kameran mot nästa streckkod.";
   }
+}
+
+function barcodeInCooldown(barcode) {
+  const scannedAt = state.recentBarcodeScans[barcode] || 0;
+  return Date.now() - scannedAt < SCAN_COOLDOWN_MS;
+}
+
+function markBarcodeScan(barcode) {
+  state.recentBarcodeScans[barcode] = Date.now();
+}
+
+function renderScanResult(result, product, barcode) {
+  elements.scanResult.hidden = false;
+  elements.scanResult.dataset.tone = result.merged ? "merged" : "added";
+  elements.scanResult.querySelector(".scan-result__status").textContent = result.merged ? "Antal ökat" : "Tillagd";
+  elements.scanResultTitle.textContent = result.item.name;
+  elements.scanResultMeta.textContent = [result.item.brand, result.item.category, `EAN ${barcode}`].filter(Boolean).join(" · ");
+  const imageUrl = result.item.photoDataUrl || result.item.productImageUrl || product.imageUrl;
+  elements.scanResultImage.hidden = !imageUrl;
+  elements.scanResultImage.src = imageUrl || "";
+  elements.scanResultImage.alt = imageUrl ? `Bild av ${result.item.name}` : "";
+}
+
+function clearScanResult() {
+  elements.scanResult.hidden = true;
+  elements.scanResultTitle.textContent = "";
+  elements.scanResultMeta.textContent = "";
+  elements.scanResultImage.hidden = true;
+  elements.scanResultImage.src = "";
+  elements.scanResultImage.alt = "";
 }
 
 async function addManualBarcode() {
@@ -603,9 +643,11 @@ function stopBarcodeScan() {
   state.barcodeDetector = null;
   state.zxingControls = null;
   state.zxingReader = null;
+  state.recentBarcodeScans = {};
   elements.barcodeVideo.srcObject = null;
   elements.barcodeScanner.hidden = true;
   elements.barcodeStatus.textContent = "Kamera redo.";
+  clearScanResult();
 }
 
 async function lookupProductByBarcode(barcode) {
@@ -701,7 +743,8 @@ function itemMetaMarkup(item) {
 }
 
 function renderRecentScanned() {
-  const item = state.lastScannedItemId ? activePlace().items.find((candidate) => candidate.id === state.lastScannedItemId) : null;
+  const item =
+    !state.barcodeStream && state.lastScannedItemId ? activePlace().items.find((candidate) => candidate.id === state.lastScannedItemId) : null;
   elements.recentScanned.hidden = !item;
   if (!item) {
     elements.recentScannedName.textContent = "";

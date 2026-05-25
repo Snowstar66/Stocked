@@ -507,6 +507,66 @@ select:focus-visible {
   font-weight: 700;
 }
 
+.scan-result {
+  display: grid;
+  grid-template-columns: auto 52px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(191, 216, 212, 0.9);
+  border-radius: 6px;
+  background: #f4fbf9;
+  padding: 8px;
+}
+
+.scan-result[data-tone="merged"] {
+  background: #edf6ff;
+  border-color: #afcae2;
+}
+
+.scan-result__status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  border-radius: 999px;
+  background: #dff1ec;
+  color: var(--cyan);
+  padding: 4px 9px;
+  font-size: 0.78rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.scan-result[data-tone="merged"] .scan-result__status {
+  background: #dceaf5;
+  color: var(--blue-strong);
+}
+
+.scan-result img {
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  object-fit: cover;
+}
+
+.scan-result strong,
+.scan-result span:not(.scan-result__status) {
+  display: block;
+}
+
+.scan-result strong {
+  overflow-wrap: anywhere;
+}
+
+.scan-result span:not(.scan-result__status) {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
 .recent-scanned {
   display: grid;
   grid-template-columns: minmax(120px, 0.9fr) minmax(150px, 1.1fr) minmax(120px, 150px) minmax(76px, 92px) minmax(140px, 170px);
@@ -1120,6 +1180,14 @@ select:focus-visible {
 
   .barcode-scanner__footer {
     flex-direction: column;
+  }
+
+  .scan-result {
+    grid-template-columns: 1fr;
+  }
+
+  .scan-result img {
+    grid-row: 2;
   }
 
   .scan-strip .icon-button,
