@@ -32,6 +32,8 @@ const state = {
   zxingReader: null,
   zxingLoadPromise: null,
   recentBarcodeScans: {},
+  scanReceipt: [],
+  beepContext: null,
   barcodeScanTimer: 0,
   barcodeBusy: false
 };
@@ -63,6 +65,9 @@ const elements = {
   scanResultImage: document.querySelector("#scan-result-image"),
   scanResultTitle: document.querySelector("#scan-result-title"),
   scanResultMeta: document.querySelector("#scan-result-meta"),
+  scanReceipt: document.querySelector("#scan-receipt"),
+  scanReceiptCount: document.querySelector("#scan-receipt-count"),
+  scanReceiptList: document.querySelector("#scan-receipt-list"),
   recentScanned: document.querySelector("#recent-scanned"),
   recentScannedName: document.querySelector("#recent-scanned-name"),
   recentScannedNameInput: document.querySelector("#recent-scanned-name-input"),
@@ -256,10 +261,19 @@ function setView(view) {
 }
 
 function handleUseItemClick(event) {
+  const saveDateButton = event.target.closest("[data-save-item-date]");
+  if (saveDateButton) {
+    const itemId = saveDateButton.dataset.saveItemDate;
+    const input = [...elements.inventory.querySelectorAll("[data-item-date]")].find((candidate) => candidate.dataset.itemDate === itemId);
+    const result = updateItemDateInActivePlace(state.current, itemId, input?.value);
+    applyResult(result, result.error || `Sparade datum för ${result.item.name}.`);
+    return;
+  }
+
   const button = event.target.closest("[data-use-item]");
   if (!button) return;
   const result = markItemUsedInActivePlace(state.current, button.dataset.useItem);
-  applyResult(result, result.error || "Lagret uppdaterades.");
+  applyResult(result, result.error || "Varan togs bort från lagret.");
 }
 
 function applyResult(result, message) {
@@ -342,9 +356,14 @@ function renderInventory() {
         <td><span class="row-title"><strong>${escapeHtml(item.name)}</strong><span>${itemMetaMarkup(item)}</span></span></td>
         <td>${itemPhotoMarkup(item)}</td>
         <td class="amount" data-label="Antal">${item.quantity}</td>
-        <td data-label="Datum">${item.date || "Saknas"}</td>
+        <td data-label="Datum">
+          <div class="date-edit">
+            <input type="date" value="${escapeHtml(item.date)}" data-item-date="${item.id}" aria-label="Bäst före för ${escapeHtml(item.name)}" />
+            <button class="icon-button" data-save-item-date="${item.id}" type="button">Spara</button>
+          </div>
+        </td>
         <td><span class="pill ${status.tone}">${status.label}</span></td>
-        <td><button class="icon-button" data-use-item="${item.id}" title="Markera använd" aria-label="Markera ${escapeHtml(item.name)} som använd">✓</button></td>
+        <td><button class="icon-button danger-action" data-use-item="${item.id}" title="Ta bort en" aria-label="Ta bort en ${escapeHtml(item.name)}">Ta bort</button></td>
       `;
       body.append(row);
     }
@@ -365,7 +384,7 @@ function renderSoon() {
         <span class="pill ${item.status.tone}">${dateText(item.daysLeft)}</span>
       </div>
       <ul>
-        <li><span>${item.category}<small>${item.quantity} st</small></span><button class="icon-button" data-use-item="${item.id}">Använd</button></li>
+        <li><span>${item.category}<small>${item.quantity} st</small></span><button class="icon-button danger-action" data-use-item="${item.id}">Ta bort</button></li>
       </ul>
     `;
     elements.soon.append(node);
@@ -463,6 +482,7 @@ async function startBarcodeScan() {
 
   try {
     stopBarcodeScan();
+    prepareScanBeep();
     state.barcodeStream = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: { ideal: "environment" },
@@ -472,10 +492,14 @@ async function startBarcodeScan() {
     });
     elements.barcodeVideo.srcObject = state.barcodeStream;
     elements.barcodeScanner.hidden = false;
+    elements.inventoryForm.classList.add("is-scanning");
+    state.scanReceipt = [];
     clearScanResult();
+    renderScanReceipt();
     elements.barcodeStatus.textContent = "Kameran är aktiv.";
     elements.barcodeScannerStatus.textContent = "Startar skanning...";
     await elements.barcodeVideo.play();
+    elements.barcodeScanner.scrollIntoView({ behavior: "smooth", block: "start" });
 
     if ("BarcodeDetector" in window) {
       state.barcodeDetector = await createBarcodeDetector();
@@ -570,9 +594,10 @@ async function addScannedBarcode(barcode) {
   elements.barcodeStatus.textContent = `Slår upp ${barcode}...`;
   elements.barcodeScannerStatus.textContent = "Hittad. Lägger till varan...";
   const product = await lookupProductByBarcode(barcode);
+  const selectedCategory = CATEGORIES.includes(elements.itemCategory.value) ? elements.itemCategory.value : product.category;
   const result = addItemToActivePlace(state.current, {
     name: product.name,
-    category: product.category,
+    category: selectedCategory,
     quantity: 1,
     date: "",
     barcode,
@@ -584,6 +609,8 @@ async function addScannedBarcode(barcode) {
   applyResult(result, result.error || message);
   if (!result.error) {
     state.lastScannedItemId = result.item.id;
+    playScanBeep();
+    addScanReceiptItem(result, product, barcode);
     renderScanResult(result, product, barcode);
     renderRecentScanned();
     elements.barcodeStatus.textContent = "Tillagd. Redo för nästa vara.";
@@ -612,6 +639,41 @@ function renderScanResult(result, product, barcode) {
   elements.scanResultImage.alt = imageUrl ? `Bild av ${result.item.name}` : "";
 }
 
+function addScanReceiptItem(result, product, barcode) {
+  state.scanReceipt = [
+    {
+      id: `${Date.now()}-${barcode}`,
+      name: result.item.name,
+      brand: result.item.brand,
+      category: result.item.category,
+      barcode,
+      imageUrl: result.item.photoDataUrl || result.item.productImageUrl || product.imageUrl,
+      merged: Boolean(result.merged),
+      quantity: result.item.quantity
+    },
+    ...state.scanReceipt
+  ].slice(0, 30);
+  renderScanReceipt();
+}
+
+function renderScanReceipt() {
+  elements.scanReceipt.hidden = state.scanReceipt.length === 0;
+  elements.scanReceiptCount.textContent = String(state.scanReceipt.length);
+  elements.scanReceiptList.innerHTML = "";
+  for (const item of state.scanReceipt) {
+    const row = document.createElement("li");
+    row.innerHTML = `
+      ${item.imageUrl ? `<img src="${escapeHtml(item.imageUrl)}" alt="Bild av ${escapeHtml(item.name)}" />` : '<span class="scan-receipt__empty-image"></span>'}
+      <div>
+        <strong>${escapeHtml(item.name)}</strong>
+        <span>${[item.brand, item.category, `EAN ${item.barcode}`].filter(Boolean).map(escapeHtml).join(" · ")}</span>
+      </div>
+      <span class="scan-receipt__qty">${item.merged ? `Antal ${item.quantity}` : "+1"}</span>
+    `;
+    elements.scanReceiptList.append(row);
+  }
+}
+
 function clearScanResult() {
   elements.scanResult.hidden = true;
   elements.scanResultTitle.textContent = "";
@@ -619,6 +681,38 @@ function clearScanResult() {
   elements.scanResultImage.hidden = true;
   elements.scanResultImage.src = "";
   elements.scanResultImage.alt = "";
+}
+
+function prepareScanBeep() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    state.beepContext ||= new AudioContext();
+    if (state.beepContext.state === "suspended") state.beepContext.resume();
+  } catch {
+    // Audio feedback is helpful but not essential for scanning.
+  }
+}
+
+function playScanBeep() {
+  try {
+    prepareScanBeep();
+    const context = state.beepContext;
+    if (!context) return;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(880, context.currentTime);
+    gain.gain.setValueAtTime(0.001, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.13);
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.14);
+  } catch {
+    // Audio feedback is helpful but not essential for scanning.
+  }
 }
 
 async function addManualBarcode() {
@@ -644,10 +738,13 @@ function stopBarcodeScan() {
   state.zxingControls = null;
   state.zxingReader = null;
   state.recentBarcodeScans = {};
+  state.scanReceipt = [];
   elements.barcodeVideo.srcObject = null;
   elements.barcodeScanner.hidden = true;
+  elements.inventoryForm.classList.remove("is-scanning");
   elements.barcodeStatus.textContent = "Kamera redo.";
   clearScanResult();
+  renderScanReceipt();
 }
 
 async function lookupProductByBarcode(barcode) {

@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>stocked</title>
     <meta name="theme-color" content="#f3f6f8" />
-    <link rel="stylesheet" href="/app/styles.css?v=stocked-continuous-scan-20260525" />
-    <script src="/app/app.js?v=stocked-continuous-scan-20260525" defer></script>
+    <link rel="stylesheet" href="/app/styles.css?v=stocked-receipt-scan-20260525" />
+    <script src="/app/app.js?v=stocked-receipt-scan-20260525" defer></script>
   </head>
   <body>
     <main class="app-shell" data-ux-source="CostTracker3-UX-Extract">
@@ -65,6 +65,13 @@
                         <strong id="scan-result-title"></strong>
                         <span id="scan-result-meta"></span>
                       </div>
+                    </div>
+                    <div id="scan-receipt" class="scan-receipt" hidden>
+                      <div class="scan-receipt__header">
+                        <strong>Skannade varor</strong>
+                        <span id="scan-receipt-count">0</span>
+                      </div>
+                      <ol id="scan-receipt-list"></ol>
                     </div>
                     <div class="barcode-scanner__footer">
                       <span id="barcode-scanner-status">Rikta kameran mot streckkoden.</span>

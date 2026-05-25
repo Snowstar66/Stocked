@@ -567,6 +567,86 @@ select:focus-visible {
   line-height: 1.35;
 }
 
+.scan-receipt {
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(232, 242, 248, 0.22);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 8px;
+}
+
+.scan-receipt__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #e8f2f8;
+  font-size: 0.84rem;
+}
+
+.scan-receipt__header span {
+  color: #b8d9d5;
+  font-weight: 850;
+}
+
+.scan-receipt ol {
+  display: grid;
+  gap: 6px;
+  max-height: 230px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.scan-receipt li {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 7px;
+}
+
+.scan-receipt img,
+.scan-receipt__empty-image {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  object-fit: cover;
+}
+
+.scan-receipt li strong,
+.scan-receipt li span {
+  display: block;
+}
+
+.scan-receipt li strong {
+  overflow-wrap: anywhere;
+}
+
+.scan-receipt li span:not(.scan-receipt__qty) {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.scan-receipt__qty {
+  min-width: 42px;
+  border-radius: 999px;
+  background: #dff1ec;
+  color: var(--cyan);
+  padding: 4px 7px;
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-align: center;
+  white-space: nowrap;
+}
+
 .recent-scanned {
   display: grid;
   grid-template-columns: minmax(120px, 0.9fr) minmax(150px, 1.1fr) minmax(120px, 150px) minmax(76px, 92px) minmax(140px, 170px);
@@ -648,6 +728,11 @@ select:focus-visible {
 
 .form-actions--left {
   justify-content: flex-start;
+}
+
+.form-grid.is-scanning > .field:not(.field--wide),
+.form-grid.is-scanning > .form-actions {
+  display: none;
 }
 
 .data-grid {
@@ -757,6 +842,27 @@ select:focus-visible {
 .row-title span {
   color: var(--muted);
   font-size: 0.8rem;
+}
+
+.date-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-edit input {
+  min-height: 36px;
+  min-width: 138px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  padding: 7px 9px;
+}
+
+.date-edit .icon-button {
+  min-height: 36px;
+  padding: 7px 10px;
 }
 
 .month-card__title {
@@ -1262,8 +1368,21 @@ select:focus-visible {
   }
 
   .timeline-table td:nth-child(4) {
+    display: grid;
     grid-column: 2 / 3;
     grid-row: 3;
+    gap: 6px;
+  }
+
+  .timeline-table .date-edit {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    width: 100%;
+  }
+
+  .timeline-table .date-edit input {
+    min-width: 0;
+    width: 100%;
   }
 
   .timeline-table td:nth-child(5) {
