@@ -33,6 +33,7 @@ const state = {
   zxingLoadPromise: null,
   recentBarcodeScans: {},
   scanReceipt: [],
+  unknownScannedItemId: "",
   beepContext: null,
   barcodeScanTimer: 0,
   barcodeBusy: false
@@ -68,6 +69,10 @@ const elements = {
   scanReceipt: document.querySelector("#scan-receipt"),
   scanReceiptCount: document.querySelector("#scan-receipt-count"),
   scanReceiptList: document.querySelector("#scan-receipt-list"),
+  unknownProduct: document.querySelector("#unknown-product"),
+  unknownProductBarcode: document.querySelector("#unknown-product-barcode"),
+  unknownProductName: document.querySelector("#unknown-product-name"),
+  saveUnknownProductName: document.querySelector("#save-unknown-product-name"),
   recentScanned: document.querySelector("#recent-scanned"),
   recentScannedName: document.querySelector("#recent-scanned-name"),
   recentScannedNameInput: document.querySelector("#recent-scanned-name-input"),
@@ -187,6 +192,12 @@ elements.undoRecentScanned.addEventListener("click", undoRecentScanned);
 elements.clearRecentScanned.addEventListener("click", () => {
   state.lastScannedItemId = "";
   renderRecentScanned();
+});
+elements.saveUnknownProductName.addEventListener("click", saveUnknownProductName);
+elements.unknownProductName.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  saveUnknownProductName();
 });
 
 elements.inventoryForm.addEventListener("submit", (event) => {
@@ -517,7 +528,9 @@ async function startBarcodeScan() {
     elements.barcodeScanner.hidden = false;
     elements.inventoryForm.classList.add("is-scanning");
     state.scanReceipt = [];
+    state.unknownScannedItemId = "";
     clearScanResult();
+    renderUnknownProductPrompt();
     renderScanReceipt();
     elements.barcodeStatus.textContent = "Kameran är aktiv.";
     elements.barcodeScannerStatus.textContent = "Startar skanning...";
@@ -632,12 +645,14 @@ async function addScannedBarcode(barcode) {
   applyResult(result, result.error || message);
   if (!result.error) {
     state.lastScannedItemId = result.item.id;
+    state.unknownScannedItemId = product.found ? state.unknownScannedItemId : result.item.id;
     playScanBeep();
     addScanReceiptItem(result, product, barcode);
     renderScanResult(result, product, barcode);
     renderRecentScanned();
     elements.barcodeStatus.textContent = "Tillagd. Redo för nästa vara.";
     elements.barcodeScannerStatus.textContent = "Tillagd. Rikta kameran mot nästa streckkod.";
+    renderUnknownProductPrompt(barcode);
   }
 }
 
@@ -653,7 +668,7 @@ function markBarcodeScan(barcode) {
 function renderScanResult(result, product, barcode) {
   elements.scanResult.hidden = false;
   elements.scanResult.dataset.tone = result.merged ? "merged" : "added";
-  elements.scanResult.querySelector(".scan-result__status").textContent = result.merged ? "Antal ökat" : "Tillagd";
+  elements.scanResult.querySelector(".scan-result__status").textContent = result.merged ? "Antal ökat" : product.found ? "Tillagd" : "Namn saknas";
   elements.scanResultTitle.textContent = result.item.name;
   elements.scanResultMeta.textContent = [result.item.brand, result.item.category, `EAN ${barcode}`].filter(Boolean).join(" · ");
   const imageUrl = result.item.photoDataUrl || result.item.productImageUrl || product.imageUrl;
@@ -662,10 +677,23 @@ function renderScanResult(result, product, barcode) {
   elements.scanResultImage.alt = imageUrl ? `Bild av ${result.item.name}` : "";
 }
 
+function renderUnknownProductPrompt(barcode = "") {
+  const item = state.unknownScannedItemId ? activePlace().items.find((candidate) => candidate.id === state.unknownScannedItemId) : null;
+  elements.unknownProduct.hidden = !item;
+  if (!item) {
+    elements.unknownProductBarcode.textContent = "";
+    elements.unknownProductName.value = "";
+    return;
+  }
+  elements.unknownProductBarcode.textContent = item.barcode || barcode;
+  elements.unknownProductName.value = item.name.startsWith("Streckkod ") ? "" : item.name;
+}
+
 function addScanReceiptItem(result, product, barcode) {
   state.scanReceipt = [
     {
       id: `${Date.now()}-${barcode}`,
+      itemId: result.item.id,
       name: result.item.name,
       brand: result.item.brand,
       category: result.item.category,
@@ -704,6 +732,18 @@ function clearScanResult() {
   elements.scanResultImage.hidden = true;
   elements.scanResultImage.src = "";
   elements.scanResultImage.alt = "";
+}
+
+function saveUnknownProductName() {
+  if (!state.unknownScannedItemId) return;
+  const result = updateItemNameInActivePlace(state.current, state.unknownScannedItemId, elements.unknownProductName.value);
+  applyResult(result, result.error || `Sparade namn för ${result.item.name}.`);
+  if (!result.error) {
+    state.scanReceipt = state.scanReceipt.map((item) => (item.itemId === result.item.id ? { ...item, name: result.item.name } : item));
+    state.unknownScannedItemId = "";
+    renderUnknownProductPrompt();
+    renderScanReceipt();
+  }
 }
 
 function prepareScanBeep() {
@@ -762,11 +802,13 @@ function stopBarcodeScan() {
   state.zxingReader = null;
   state.recentBarcodeScans = {};
   state.scanReceipt = [];
+  state.unknownScannedItemId = "";
   elements.barcodeVideo.srcObject = null;
   elements.barcodeScanner.hidden = true;
   elements.inventoryForm.classList.remove("is-scanning");
   elements.barcodeStatus.textContent = "Kamera redo.";
   clearScanResult();
+  renderUnknownProductPrompt();
   renderScanReceipt();
 }
 

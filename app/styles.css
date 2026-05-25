@@ -656,6 +656,39 @@ select:focus-visible {
   white-space: nowrap;
 }
 
+.unknown-product {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.8fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e7c78f;
+  border-radius: 6px;
+  background: #fff7e8;
+  padding: 8px;
+}
+
+.unknown-product strong,
+.unknown-product span {
+  display: block;
+}
+
+.unknown-product span {
+  margin-top: 2px;
+  color: var(--amber);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.unknown-product input {
+  min-height: 38px;
+  min-width: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  padding: 8px 10px;
+}
+
 .recent-scanned {
   display: grid;
   grid-template-columns: minmax(120px, 0.9fr) minmax(150px, 1.1fr) minmax(120px, 150px) minmax(76px, 92px) minmax(140px, 170px);
@@ -1322,6 +1355,10 @@ select:focus-visible {
 
   .scan-result img {
     grid-row: 2;
+  }
+
+  .unknown-product {
+    grid-template-columns: 1fr;
   }
 
   .scan-strip .icon-button,

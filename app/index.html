@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>stocked</title>
     <meta name="theme-color" content="#f3f6f8" />
-    <link rel="stylesheet" href="/app/styles.css?v=stocked-autosave-date-20260525" />
-    <script src="/app/app.js?v=stocked-autosave-date-20260525" defer></script>
+    <link rel="stylesheet" href="/app/styles.css?v=stocked-add-flow-20260525" />
+    <script src="/app/app.js?v=stocked-add-flow-20260525" defer></script>
   </head>
   <body>
     <main class="app-shell" data-ux-source="CostTracker3-UX-Extract">
@@ -23,7 +23,7 @@
           </label>
           <span class="local-badge" aria-label="Data sparas lokalt">Lokalt sparad</span>
           <nav class="segmented-nav" aria-label="Huvudvy">
-            <button class="is-active" type="button" data-view="overview">Översikt</button>
+            <button class="is-active" type="button" data-view="overview">Lägg till</button>
             <button type="button" data-view="inventory">Lager</button>
             <button type="button" data-view="shopping">Inköp</button>
             <button type="button" data-view="admin">Admin</button>
@@ -39,9 +39,9 @@
             <section class="panel" aria-labelledby="quick-entry-title">
               <div class="panel__header">
                 <div>
-                  <span class="eyebrow">Snabbregistrering</span>
-                  <h2 id="quick-entry-title">Bygg dagens lagerbild</h2>
-                  <p>Registrera varor manuellt eller med streckkod för den valda platsen.</p>
+                  <span class="eyebrow">Lägg till</span>
+                  <h2 id="quick-entry-title">Fyll på lagret</h2>
+                  <p>Skanna flera varor i följd eller registrera en vara manuellt.</p>
                 </div>
               </div>
 
@@ -65,6 +65,14 @@
                         <strong id="scan-result-title"></strong>
                         <span id="scan-result-meta"></span>
                       </div>
+                    </div>
+                    <div id="unknown-product" class="unknown-product" hidden>
+                      <div>
+                        <strong>Okänd vara</strong>
+                        <span id="unknown-product-barcode"></span>
+                      </div>
+                      <input id="unknown-product-name" maxlength="60" placeholder="Skriv varans namn" aria-label="Namn på okänd vara" />
+                      <button id="save-unknown-product-name" class="icon-button" type="button">Spara namn</button>
                     </div>
                     <div id="scan-receipt" class="scan-receipt" hidden>
                       <div class="scan-receipt__header">
