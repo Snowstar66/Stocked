@@ -171,7 +171,7 @@ elements.clearPhoto.addEventListener("click", () => {
 elements.scanBarcode.addEventListener("click", startBarcodeScan);
 elements.stopBarcodeScan.addEventListener("click", () => {
   stopBarcodeScan();
-  announce("Skanningen avbröts.");
+  announce("Skanningen stängdes.");
 });
 
 elements.saveRecentScannedName.addEventListener("click", saveRecentScannedName);
