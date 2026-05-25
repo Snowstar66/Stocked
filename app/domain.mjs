@@ -276,17 +276,35 @@ export function addShoppingItem(state, input, now = new Date()) {
   };
 }
 
-export function toggleShoppingItem(state, shoppingId, now = new Date()) {
+export function moveShoppingItemToInventory(state, shoppingId, now = new Date()) {
   const place = activePlace(state);
   const shoppingItem = place.shopping.find((item) => item.id === shoppingId);
   if (!shoppingItem) return { state, error: "Inköpsraden finns inte längre." };
+  const existingItem = place.items.find((item) => namesMatch(item.name, shoppingItem.name));
+  const nextItems = existingItem
+    ? place.items.map((item) => (item.id === existingItem.id ? { ...item, quantity: Math.min(99, item.quantity + 1) } : item))
+    : [
+        ...place.items,
+        {
+          id: makeId("item", now),
+          name: shoppingItem.name,
+          category: "Annat",
+          quantity: 1,
+          date: "",
+          barcode: "",
+          brand: "",
+          photoDataUrl: "",
+          productImageUrl: ""
+        }
+      ];
   return {
     state: updateActivePlace(
       state,
-      (candidate) => ({ ...candidate, shopping: candidate.shopping.map((item) => (item.id === shoppingId ? { ...item, checked: !item.checked } : item)) }),
-      `${shoppingItem.checked ? "Ångrade" : "Markerade"} ${shoppingItem.name} i inköpslistan.`,
+      (candidate) => ({ ...candidate, items: nextItems, shopping: candidate.shopping.filter((item) => item.id !== shoppingId) }),
+      `Flyttade ${shoppingItem.name} från inköpslistan till lagret.`,
       now
-    )
+    ),
+    item: existingItem ? { ...existingItem, quantity: Math.min(99, existingItem.quantity + 1) } : nextItems.at(-1)
   };
 }
 

@@ -15,7 +15,7 @@ import {
   removeItemUnit,
   soonItems,
   STORAGE_KEY,
-  toggleShoppingItem,
+  moveShoppingItemToInventory,
   updateItemCategory,
   updateItemDate,
   updateItemName,
@@ -224,8 +224,21 @@ const today = new Date("2026-05-19T08:00:00.000Z");
   });
   const result = addShoppingItem(state, { name: "mjölk" }, today);
   assert.equal(result.shoppingItem.inInventory, true);
-  const toggled = toggleShoppingItem(result.state, result.shoppingItem.id, today);
-  assert.equal(activePlace(toggled.state).shopping[0].checked, true);
+  const moved = moveShoppingItemToInventory(result.state, result.shoppingItem.id, today);
+  assert.equal(activePlace(moved.state).shopping.length, 0);
+  assert.equal(activePlace(moved.state).items[0].quantity, 2);
+}
+
+{
+  const state = normalizeState({
+    activePlaceId: "p1",
+    places: [{ id: "p1", name: "Hem", items: [], shopping: [{ id: "s1", name: "Banan", checked: false, inInventory: false }] }],
+    audit: []
+  });
+  const moved = moveShoppingItemToInventory(state, "s1", today);
+  assert.equal(activePlace(moved.state).shopping.length, 0);
+  assert.equal(activePlace(moved.state).items[0].name, "Banan");
+  assert.equal(activePlace(moved.state).items[0].quantity, 1);
 }
 
 {

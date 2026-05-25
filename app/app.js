@@ -222,7 +222,8 @@ elements.shopping.addEventListener("click", (event) => {
   const toggleButton = event.target.closest("[data-toggle-shop]");
   const removeButton = event.target.closest("[data-remove-shop]");
   if (toggleButton) {
-    applyResult(toggleShoppingItemInActivePlace(state.current, toggleButton.dataset.toggleShop), "Inköpslistan uppdaterades.");
+    const result = moveShoppingItemToInventoryInActivePlace(state.current, toggleButton.dataset.toggleShop);
+    applyResult(result, result.error || `Flyttade ${result.item.name} till lagret.`);
   }
   if (removeButton) {
     applyResult(removeShoppingItemFromActivePlace(state.current, removeButton.dataset.removeShop), "Inköpsraden togs bort.");
@@ -419,9 +420,9 @@ function renderShopping() {
   elements.shopping.innerHTML = emptyMessage(shopping.length, "Inköpslistan är tom.");
   for (const item of shopping) {
     const row = document.createElement("article");
-    row.className = `register-row shopping-row ${item.checked ? "checked" : ""}`;
+    row.className = "register-row shopping-row";
     row.innerHTML = `
-      <button class="icon-button" data-toggle-shop="${item.id}" title="Växla inköpt" aria-label="Växla ${escapeHtml(item.name)}">✓</button>
+      <button class="icon-button" data-toggle-shop="${item.id}" title="Lägg i lager" aria-label="Lägg ${escapeHtml(item.name)} i lager">✓</button>
       <div>
         <strong>${escapeHtml(item.name)}</strong>
         ${item.inInventory ? "<span>Liknande vara finns på platsen</span>" : "<span>Saknas i platsens lager</span>"}
@@ -1217,17 +1218,35 @@ function addShoppingItemToActivePlace(nextState, input, now = new Date()) {
   };
 }
 
-function toggleShoppingItemInActivePlace(nextState, shoppingId, now = new Date()) {
+function moveShoppingItemToInventoryInActivePlace(nextState, shoppingId, now = new Date()) {
   const place = activePlace(nextState);
   const shoppingItem = place.shopping.find((item) => item.id === shoppingId);
   if (!shoppingItem) return { state: nextState, error: "Inköpsraden finns inte längre." };
+  const existingItem = place.items.find((item) => namesMatch(item.name, shoppingItem.name));
+  const nextItems = existingItem
+    ? place.items.map((item) => (item.id === existingItem.id ? { ...item, quantity: Math.min(99, item.quantity + 1) } : item))
+    : [
+        ...place.items,
+        {
+          id: makeId("item", now),
+          name: shoppingItem.name,
+          category: "Annat",
+          quantity: 1,
+          date: "",
+          barcode: "",
+          brand: "",
+          photoDataUrl: "",
+          productImageUrl: ""
+        }
+      ];
   return {
     state: updateActivePlace(
       nextState,
-      (candidate) => ({ ...candidate, shopping: candidate.shopping.map((item) => (item.id === shoppingId ? { ...item, checked: !item.checked } : item)) }),
-      `${shoppingItem.checked ? "Ångrade" : "Markerade"} ${shoppingItem.name} i inköpslistan.`,
+      (candidate) => ({ ...candidate, items: nextItems, shopping: candidate.shopping.filter((item) => item.id !== shoppingId) }),
+      `Flyttade ${shoppingItem.name} från inköpslistan till lagret.`,
       now
-    )
+    ),
+    item: existingItem ? { ...existingItem, quantity: Math.min(99, existingItem.quantity + 1) } : nextItems.at(-1)
   };
 }
 

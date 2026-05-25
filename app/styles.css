@@ -1101,10 +1101,6 @@ select:focus-visible {
   border-bottom: 0;
 }
 
-.shopping-row.checked strong {
-  text-decoration: line-through;
-}
-
 .shopping-row strong,
 .shopping-row span {
   display: block;
