@@ -55,8 +55,6 @@ const elements = {
   itemPhotoPreview: document.querySelector("#item-photo-preview"),
   clearPhoto: document.querySelector("#clear-photo"),
   scanBarcode: document.querySelector("#scan-barcode"),
-  manualBarcode: document.querySelector("#manual-barcode"),
-  addManualBarcode: document.querySelector("#add-manual-barcode"),
   barcodeScanner: document.querySelector("#barcode-scanner"),
   barcodeVideo: document.querySelector("#barcode-video"),
   barcodeStatus: document.querySelector("#barcode-status"),
@@ -171,12 +169,6 @@ elements.clearPhoto.addEventListener("click", () => {
 });
 
 elements.scanBarcode.addEventListener("click", startBarcodeScan);
-elements.addManualBarcode.addEventListener("click", addManualBarcode);
-elements.manualBarcode.addEventListener("keydown", (event) => {
-  if (event.key !== "Enter") return;
-  event.preventDefault();
-  addManualBarcode();
-});
 elements.stopBarcodeScan.addEventListener("click", () => {
   stopBarcodeScan();
   announce("Skanningen avbröts.");
@@ -758,16 +750,6 @@ function playScanBeep() {
   } catch {
     // Audio feedback is helpful but not essential for scanning.
   }
-}
-
-async function addManualBarcode() {
-  const barcode = cleanBarcode(elements.manualBarcode.value);
-  if (!barcode) {
-    announce("Ange en giltig streckkod med 6-18 siffror.", "error");
-    return;
-  }
-  elements.manualBarcode.value = "";
-  await addScannedBarcode(barcode);
 }
 
 function stopBarcodeScan() {

@@ -422,7 +422,7 @@ select:focus-visible {
 
 .scan-strip {
   display: grid;
-  grid-template-columns: auto minmax(150px, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   min-height: 48px;

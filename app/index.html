@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>stocked</title>
     <meta name="theme-color" content="#f3f6f8" />
-    <link rel="stylesheet" href="/app/styles.css?v=stocked-clean-dates-20260525" />
-    <script src="/app/app.js?v=stocked-clean-dates-20260525" defer></script>
+    <link rel="stylesheet" href="/app/styles.css?v=stocked-scan-only-20260525" />
+    <script src="/app/app.js?v=stocked-scan-only-20260525" defer></script>
   </head>
   <body>
     <main class="app-shell" data-ux-source="CostTracker3-UX-Extract">
@@ -49,8 +49,6 @@
                 <form id="inventory-form" class="form-grid" aria-label="Lägg till matvara">
                   <div class="scan-strip field--wide">
                     <button id="scan-barcode" class="icon-button icon-button--primary" type="button">Skanna streckkod</button>
-                    <input id="manual-barcode" inputmode="numeric" maxlength="18" placeholder="Skriv streckkod" aria-label="Skriv streckkod manuellt" />
-                    <button id="add-manual-barcode" class="icon-button" type="button">Lägg in kod</button>
                     <span id="barcode-status">Kamera redo.</span>
                   </div>
                   <div id="barcode-scanner" class="barcode-scanner field--wide" hidden>
