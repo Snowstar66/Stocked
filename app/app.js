@@ -335,8 +335,8 @@ function renderInventory() {
       row.innerHTML = `
         <td><span class="row-title"><strong>${escapeHtml(item.name)}</strong><span>${itemMetaMarkup(item)}</span></span></td>
         <td>${itemPhotoMarkup(item)}</td>
-        <td class="amount">${item.quantity}</td>
-        <td>${item.date || "Saknas"}</td>
+        <td class="amount" data-label="Antal">${item.quantity}</td>
+        <td data-label="Datum">${item.date || "Saknas"}</td>
         <td><span class="pill ${status.tone}">${status.label}</span></td>
         <td><button class="icon-button" data-use-item="${item.id}" title="Markera använd" aria-label="Markera ${escapeHtml(item.name)} som använd">✓</button></td>
       `;
