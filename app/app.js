@@ -389,7 +389,7 @@ function renderInventory() {
           </div>
         </td>
         <td>${item.date ? `<span class="pill ${status.tone}">${status.label}</span>` : ""}</td>
-        <td><button class="icon-button icon-button--square danger-action" data-use-item="${item.id}" title="Ta bort en" aria-label="Ta bort en ${escapeHtml(item.name)}">🗑</button></td>
+        <td><button class="icon-button icon-button--square danger-action" data-use-item="${item.id}" title="Ta bort en" aria-label="Ta bort en ${escapeHtml(item.name)}">${trashIconMarkup()}</button></td>
       `;
       body.append(row);
     }
@@ -876,6 +876,18 @@ function itemPhotoMarkup(item) {
 
 function itemMetaMarkup(item) {
   return [item.category, item.brand].filter(Boolean).map(escapeHtml).join(" &middot; ");
+}
+
+function trashIconMarkup() {
+  return `
+    <svg class="trash-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M3 6h18" />
+      <path d="M8 6V4h8v2" />
+      <path d="M6 6l1 15h10l1-15" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+    </svg>
+  `;
 }
 
 function renderRecentScanned() {
