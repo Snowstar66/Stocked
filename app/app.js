@@ -261,6 +261,25 @@ function setView(view) {
 }
 
 function handleUseItemClick(event) {
+  const quantityButton = event.target.closest("[data-adjust-quantity]");
+  if (quantityButton) {
+    const itemId = quantityButton.dataset.adjustQuantity;
+    const delta = Number(quantityButton.dataset.delta);
+    const item = activePlace().items.find((candidate) => candidate.id === itemId);
+    if (!item) {
+      announce("Varan finns inte längre i lagret.", "error");
+      return;
+    }
+    if (delta < 0) {
+      const result = markItemUsedInActivePlace(state.current, itemId);
+      applyResult(result, result.error || "Antalet minskades.");
+      return;
+    }
+    const result = updateItemQuantityInActivePlace(state.current, itemId, item.quantity + 1);
+    applyResult(result, result.error || `Ökade antal för ${result.item.name}.`);
+    return;
+  }
+
   const saveDateButton = event.target.closest("[data-save-item-date]");
   if (saveDateButton) {
     const itemId = saveDateButton.dataset.saveItemDate;
@@ -355,15 +374,21 @@ function renderInventory() {
       row.innerHTML = `
         <td><span class="row-title"><strong>${escapeHtml(item.name)}</strong><span>${itemMetaMarkup(item)}</span></span></td>
         <td>${itemPhotoMarkup(item)}</td>
-        <td class="amount" data-label="Antal">${item.quantity}</td>
+        <td class="amount" data-label="Antal">
+          <div class="quantity-stepper" aria-label="Antal ${escapeHtml(item.name)}">
+            <button class="icon-button" data-adjust-quantity="${item.id}" data-delta="-1" type="button" aria-label="Minska antal för ${escapeHtml(item.name)}">−</button>
+            <span>${item.quantity}</span>
+            <button class="icon-button" data-adjust-quantity="${item.id}" data-delta="1" type="button" aria-label="Öka antal för ${escapeHtml(item.name)}">+</button>
+          </div>
+        </td>
         <td data-label="Datum">
           <div class="date-edit">
             <input type="date" value="${escapeHtml(item.date)}" data-item-date="${item.id}" aria-label="Bäst före för ${escapeHtml(item.name)}" />
-            <button class="icon-button" data-save-item-date="${item.id}" type="button">Spara</button>
+            <button class="icon-button icon-button--square" data-save-item-date="${item.id}" type="button" title="Spara datum" aria-label="Spara datum för ${escapeHtml(item.name)}">💾</button>
           </div>
         </td>
         <td><span class="pill ${status.tone}">${status.label}</span></td>
-        <td><button class="icon-button danger-action" data-use-item="${item.id}" title="Ta bort en" aria-label="Ta bort en ${escapeHtml(item.name)}">Ta bort</button></td>
+        <td><button class="icon-button icon-button--square danger-action" data-use-item="${item.id}" title="Ta bort en" aria-label="Ta bort en ${escapeHtml(item.name)}">🗑</button></td>
       `;
       body.append(row);
     }
