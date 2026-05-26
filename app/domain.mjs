@@ -185,10 +185,11 @@ export function removeItemUnit(state, itemId, now = new Date()) {
 }
 
 export function updateItemDate(state, itemId, date, now = new Date()) {
-  if (!validIsoDate(date)) return { state, error: "Ange ett giltigt datum." };
+  if (date && !validIsoDate(date)) return { state, error: "Ange ett giltigt datum." };
   const place = activePlace(state);
   const item = place.items.find((candidate) => candidate.id === itemId);
   if (!item) return { state, error: "Varan finns inte längre i lagret." };
+  const auditDate = date || "inget datum";
   return {
     state: updateActivePlace(
       state,
@@ -196,7 +197,7 @@ export function updateItemDate(state, itemId, date, now = new Date()) {
         ...candidate,
         items: candidate.items.map((candidateItem) => (candidateItem.id === itemId ? { ...candidateItem, date } : candidateItem))
       }),
-      `Satte datum ${date} för ${item.name}.`,
+      `Satte datum ${auditDate} för ${item.name}.`,
       now
     ),
     item: { ...item, date }

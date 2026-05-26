@@ -192,7 +192,8 @@ elements.shoppingForm.addEventListener("submit", (event) => {
 
 elements.inventory.addEventListener("click", handleUseItemClick);
 elements.soon.addEventListener("click", handleUseItemClick);
-elements.inventory.addEventListener("change", handleInventoryChange);
+elements.inventory.addEventListener("focusin", captureInventoryDateBeforeEdit);
+elements.inventory.addEventListener("focusout", handleInventoryDateBlur);
 
 elements.shopping.addEventListener("click", (event) => {
   const toggleButton = event.target.closest("[data-toggle-shop]");
@@ -265,9 +266,16 @@ function handleUseItemClick(event) {
   applyResult(result, result.error || "Varan togs bort från lagret.");
 }
 
-function handleInventoryChange(event) {
+function captureInventoryDateBeforeEdit(event) {
   const input = event.target.closest("[data-item-date]");
   if (!input) return;
+  input.dataset.originalDate = input.value;
+}
+
+function handleInventoryDateBlur(event) {
+  const input = event.target.closest("[data-item-date]");
+  if (!input) return;
+  if (input.value === input.dataset.originalDate) return;
   const result = updateItemDateInActivePlace(state.current, input.dataset.itemDate, input.value);
   applyResult(result, result.error || `Sparade datum för ${result.item.name}.`);
 }
@@ -347,22 +355,22 @@ function renderInventory() {
       const status = itemStatus(item);
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td><span class="row-title"><strong>${escapeHtml(item.name)}</strong><span>${itemMetaMarkup(item)}</span></span></td>
-        <td>${itemPhotoMarkup(item)}</td>
-        <td class="amount" data-label="Antal">
+        <td class="inventory-name"><span class="row-title"><strong>${escapeHtml(item.name)}</strong><span>${itemMetaMarkup(item)}</span></span></td>
+        <td class="inventory-photo">${itemPhotoMarkup(item)}</td>
+        <td class="amount inventory-quantity" data-label="Antal">
           <div class="quantity-stepper" aria-label="Antal ${escapeHtml(item.name)}">
             <button class="icon-button" data-adjust-quantity="${item.id}" data-delta="-1" type="button" aria-label="Minska antal för ${escapeHtml(item.name)}">−</button>
             <span>${item.quantity}</span>
             <button class="icon-button" data-adjust-quantity="${item.id}" data-delta="1" type="button" aria-label="Öka antal för ${escapeHtml(item.name)}">+</button>
           </div>
         </td>
-        <td data-label="Datum">
+        <td class="inventory-date" data-label="Datum">
           <div class="date-edit">
-            <input type="date" value="${escapeHtml(item.date)}" data-item-date="${item.id}" aria-label="Bäst före för ${escapeHtml(item.name)}" />
+            <input type="date" value="${escapeHtml(item.date)}" data-original-date="${escapeHtml(item.date)}" data-item-date="${item.id}" aria-label="Bäst före för ${escapeHtml(item.name)}" />
           </div>
         </td>
-        <td>${item.date ? `<span class="pill ${status.tone}">${status.label}</span>` : ""}</td>
-        <td><button class="icon-button icon-button--square danger-action" data-use-item="${item.id}" title="Ta bort en" aria-label="Ta bort en ${escapeHtml(item.name)}">${trashIconMarkup()}</button></td>
+        <td class="inventory-status">${item.date ? `<span class="pill ${status.tone}">${status.label}</span>` : ""}</td>
+        <td class="inventory-remove"><button class="icon-button icon-button--square danger-action" data-use-item="${item.id}" title="Ta bort en" aria-label="Ta bort en ${escapeHtml(item.name)}">${trashIconMarkup()}</button></td>
       `;
       body.append(row);
     }
@@ -1046,10 +1054,11 @@ function markItemUsedInActivePlace(nextState, itemId, now = new Date()) {
 }
 
 function updateItemDateInActivePlace(nextState, itemId, date, now = new Date()) {
-  if (!validIsoDate(date)) return { state: nextState, error: "Ange ett giltigt datum." };
+  if (date && !validIsoDate(date)) return { state: nextState, error: "Ange ett giltigt datum." };
   const place = activePlace(nextState);
   const item = place.items.find((candidate) => candidate.id === itemId);
   if (!item) return { state: nextState, error: "Varan finns inte längre i lagret." };
+  const auditDate = date || "inget datum";
   return {
     state: updateActivePlace(
       nextState,
@@ -1057,7 +1066,7 @@ function updateItemDateInActivePlace(nextState, itemId, date, now = new Date()) 
         ...candidate,
         items: candidate.items.map((candidateItem) => (candidateItem.id === itemId ? { ...candidateItem, date } : candidateItem))
       }),
-      `Satte datum ${date} för ${item.name}.`,
+      `Satte datum ${auditDate} för ${item.name}.`,
       now
     ),
     item: { ...item, date }
